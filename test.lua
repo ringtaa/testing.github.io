@@ -24,10 +24,9 @@ local stepZ = -2000
 local duration = 0.5
 local stopTweening = false
 
--- Vampire Castle variables
+-- Teleportation variables
 local teleportPosition = Vector3.new(57, 3, -9000)
 local teleportCount = 10
-local delayTime = 0.1
 local vampireCastleName = "VampireCastle"
 local maximGunName = "MaximGun"
 local chairName = "Chair"
