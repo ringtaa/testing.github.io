@@ -142,8 +142,6 @@ if vampireCastle and vampireCastle.PrimaryPart then
     else
         warn("No MaximGun near VampireCastle.")
     end
-else
-    warn("VampireCastle missing or invalid PrimaryPart.")
 end
 
 if not closestGun then
