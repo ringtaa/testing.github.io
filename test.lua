@@ -119,7 +119,59 @@ for i = 1, 10 do
     humanoidRootPart.CFrame = CFrame.new(teleportPosition)
     task.wait(0.1)
 end
+local vampireCastle = workspace:FindFirstChild("VampireCastle")
+if vampireCastle and vampireCastle.PrimaryPart then
+    print("VampireCastle at Z:", vampireCastle.PrimaryPart.Position.Z)
 
+    local closestGun
+    for , item in pairs(workspace.RuntimeItems:GetDescendants()) do
+        if item:IsA("Model") and item.Name == "MaximGun" then
+            local dist = (item.PrimaryPart.Position - vampireCastle.PrimaryPart.Position).Magnitude
+            if dist <= 500 then
+                closestGun = item
+                break
+            end
+        end
+    end
+
+    if closestGun then
+        local seat = closestGun:FindFirstChild("VehicleSeat")
+        if seat then
+            character:PivotTo(seat.CFrame)
+            seat:Sit(humanoid)
+            print("Seated on MaximGun.")
+            enableNoclip() -- Enable noclip after sitting
+        else
+            warn("No VehicleSeat on MaximGun.")
+        end
+    else
+        warn("No MaximGun near VampireCastle.")
+    end
+else
+    warn("VampireCastle missing or invalid PrimaryPart.")
+end
+
+if not closestGun then
+    local foundChair = nil
+    for , chair in pairs(workspace.RuntimeItems:GetDescendants()) do
+        if chair.Name == "Chair" then
+            local seat = chair:FindFirstChild("Seat")
+            if seat and seat.Position.Z >= -9500 and seat.Position.Z <= -9000 then
+                foundChair = seat
+                break
+            end
+        end
+    end
+
+    if foundChair then
+        character:PivotTo(foundChair.CFrame)
+        foundChair:Sit(humanoid)
+        print("Seated on Chair at Z:", foundChair.Position.Z)
+        enableNoclip() -- Enable noclip after sitting
+    else
+        warn("No VampireCastle, MaximGun, or Chair found.")
+    end
+end
 -- Wait and jump to begin collection again
 task.wait(3)
 humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
