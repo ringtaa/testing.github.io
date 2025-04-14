@@ -133,6 +133,8 @@ if vampireCastle and vampireCastle.PrimaryPart then
             character:PivotTo(seat.CFrame)
             seat:Sit(humanoid)
             print("Seated on MaximGun.")
+            task.wait(2)
+            humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
             enableNoclip()
         else
             warn("No VehicleSeat on MaximGun.")
@@ -146,7 +148,13 @@ end
 
 if not closestGun then
     local foundChair = nil
-    for _, chair in pairs(workspace.RuntimeItems:GetDescendants()) do
+    local items = workspace:FindFirstChild("RuntimeItems")
+    if not items then
+        warn("RuntimeItems folder not found.")
+        return
+    end
+
+    for _, chair in pairs(items:GetDescendants()) do
         if chair.Name == "Chair" then
             local seat = chair:FindFirstChild("Seat")
             if seat and seat.Position.Z >= -9500 and seat.Position.Z <= -9000 then
@@ -160,11 +168,10 @@ if not closestGun then
         character:PivotTo(foundChair.CFrame)
         foundChair:Sit(humanoid)
         print("Seated on Chair at Z:", foundChair.Position.Z)
+        task.wait(2)
+        humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
         enableNoclip()
     else
         warn("No VampireCastle, MaximGun, or Chair found.")
     end
 end
-
-task.wait(3)
-humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
