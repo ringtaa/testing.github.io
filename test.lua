@@ -6,9 +6,15 @@ local TweenService = game:GetService("TweenService")
 
 local player = Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
-local humanoid = character:WaitForChild("Humanoid")
-local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-local remote = ReplicatedStorage.Packages.RemotePromise.Remotes.C_ActivateObject
+local humanoid = character:WaitForChild("Humanoid", 5)
+local humanoidRootPart = character:WaitForChild("HumanoidRootPart", 5)
+
+if not humanoid or not humanoidRootPart then
+    error("Character is missing Humanoid or HumanoidRootPart!")
+end
+
+local remote = ReplicatedStorage.Packages.RemotePromise.Remotes:FindFirstChild("C_ActivateObject")
+assert(remote, "Remote function C_ActivateObject not found!")
 
 -- Bond collection variables
 local maxDistance = 500 -- Only walk to bonds within 500 blocks
@@ -47,10 +53,16 @@ end
 -- Function for infinite bond collection
 local function CollectBonds()
     while true do
+        local bondFolder = Workspace:FindFirstChild("RuntimeItems")
+        if not bondFolder then
+            print("RuntimeItems folder not found in Workspace! Retrying...")
+            task.wait(1)
+            continue
+        end
+
         local closestBond = nil
         local closestDistance = math.huge
-
-        for _, bond in pairs(Workspace:FindFirstChild("RuntimeItems") and Workspace.RuntimeItems:GetChildren() or {}) do
+        for _, bond in pairs(bondFolder:GetChildren()) do
             if bond:IsA("Model") and bond.Name:match("Bond") then
                 local distance = (humanoidRootPart.Position - bond:GetModelCFrame().Position).Magnitude
                 if distance < closestDistance then
@@ -61,16 +73,18 @@ local function CollectBonds()
         end
 
         if closestBond then
+            print("Found bond:", closestBond.Name, "Distance:", closestDistance)
             if closestDistance <= collectDistance then
-                remote:FireServer(closestBond) -- Collect bond immediately if within range
+                print("Collecting bond:", closestBond.Name)
+                remote:FireServer(closestBond)
             elseif closestDistance <= maxDistance then
-                humanoid:MoveTo(closestBond:GetModelCFrame().Position) -- Move to bond within range
-                humanoid.MoveToFinished:Wait() -- Wait until the player reaches the bond
-                remote:FireServer(closestBond) -- Collect bond
-                task.wait(walkDelay) -- Slight delay between movements
+                humanoid:MoveTo(closestBond:GetModelCFrame().Position)
+                humanoid.MoveToFinished:Wait()
+                remote:FireServer(closestBond)
+                task.wait(walkDelay)
             end
         else
-            print("No bonds found in area!")
+            print("No bonds found in current area.")
             break -- Exit loop if no bonds are found
         end
 
@@ -78,20 +92,19 @@ local function CollectBonds()
     end
 end
 
--- Start bond collection in a separate thread
-spawn(CollectBonds)
-
 -- Function for cannon detection during tweening
-local function TweenToFindCannon()
+local function FindCannonWhileTweening()
     for z = startZ, endZ, stepZ do
         if stopTweening then break end
-        local adjustedY = math.max(y, 3)
+
+        -- Tweening to next position
+        local goalPosition = Vector3.new(x, y, z)
         local tweenInfo = TweenInfo.new(duration, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
-        local goal = {CFrame = CFrame.new(Vector3.new(x, adjustedY, z))}
-        local tween = TweenService:Create(humanoidRootPart, tweenInfo, goal)
+        local tween = TweenService:Create(humanoidRootPart, tweenInfo, { CFrame = CFrame.new(goalPosition) })
         tween:Play()
         tween.Completed:Wait()
 
+        -- Check for cannon
         local cannon = nil
         for _, item in pairs(Workspace:GetDescendants()) do
             if item:IsA("Model") and item.Name == "Cannon" then
@@ -101,24 +114,20 @@ local function TweenToFindCannon()
         end
 
         if cannon then
-            local vehicleSeat = cannon:FindFirstChild("VehicleSeat")
-            if vehicleSeat then
-                character:PivotTo(vehicleSeat.CFrame)
-                vehicleSeat:Sit(humanoid)
-                task.wait(2) -- Wait 2 seconds before jumping
-                humanoid:ChangeState(Enum.HumanoidStateType.Jumping) -- Jump
-                spawn(CollectBonds) -- Resume bond collection after jumping
+            local seat = cannon:FindFirstChild("VehicleSeat")
+            if seat then
+                print("Cannon found! Sitting on VehicleSeat.")
+                character:PivotTo(seat.CFrame)
+                seat:Sit(humanoid)
+                task.wait(2)
+                humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+                spawn(CollectBonds) -- Resume bond collection
                 stopTweening = true
                 break
-            else
-                warn("No VehicleSeat on Cannon!")
             end
         end
     end
 end
-
--- Start tweening and cannon search
-TweenToFindCannon()
 
 -- Function for Vampire Castle logic
 local function TeleportToVampireCastle()
@@ -147,8 +156,8 @@ local function TeleportToVampireCastle()
             if seat then
                 character:PivotTo(seat.CFrame)
                 seat:Sit(humanoid)
-                task.wait(2) -- Wait 2 seconds before jumping
-                humanoid:ChangeState(Enum.HumanoidStateType.Jumping) -- Jump
+                task.wait(2)
+                humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
                 spawn(CollectBonds) -- Resume bond collection
                 enableNoclip()
             else
@@ -170,8 +179,8 @@ local function TeleportToVampireCastle()
             if foundChair then
                 character:PivotTo(foundChair.CFrame)
                 foundChair:Sit(humanoid)
-                task.wait(2) -- Wait 2 seconds before jumping
-                humanoid:ChangeState(Enum.HumanoidStateType.Jumping) -- Jump
+                task.wait(2)
+                humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
                 spawn(CollectBonds) -- Resume bond collection
                 enableNoclip()
             else
@@ -183,5 +192,7 @@ local function TeleportToVampireCastle()
     end
 end
 
--- Teleport to Vampire Castle after cannon interaction
+-- Start bond collection and cannon search
+spawn(CollectBonds)
+FindCannonWhileTweening()
 TeleportToVampireCastle()
