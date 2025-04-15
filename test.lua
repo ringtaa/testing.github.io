@@ -15,8 +15,6 @@ local maxDistance = 500
 local collectDistance = 10
 local walkDelay = 0.1
 local collectingBonds = true
-
--- Vampire Castle variables
 local teleportPosition = Vector3.new(57, 3, -9000)
 local teleportCount = 10
 local delayTime = 0.1
@@ -25,7 +23,6 @@ local delayTime = 0.1
 local function GetNearestBond()
     local closestBond = nil
     local closestDistance = math.huge
-
     for _, bond in pairs(Workspace.RuntimeItems:GetChildren()) do
         if bond:IsA("Model") and bond.Name:match("Bond") then
             local distance = (humanoidRootPart.Position - bond:GetModelCFrame().Position).Magnitude
@@ -35,7 +32,6 @@ local function GetNearestBond()
             end
         end
     end
-
     return closestBond, closestDistance
 end
 
@@ -52,10 +48,7 @@ local function CollectBonds()
                 remote:FireServer(bond) -- Collect after moving closer
                 task.wait(walkDelay)
             end
-        else
-            print("No bonds detected.")
         end
-
         task.wait(0.1) -- Avoid rapid iteration
     end
 end
@@ -69,7 +62,6 @@ local function enableNoclip()
             end
         end
     end)
-
     print("Noclip mode enabled.")
 end
 
@@ -77,7 +69,7 @@ end
 local function HandleVampireCastle()
     for i = 1, teleportCount do
         humanoidRootPart.CFrame = CFrame.new(teleportPosition)
-        task.wait(delayTime)
+        wait(delayTime)
     end
 
     local vampireCastle = Workspace:FindFirstChild("VampireCastle")
