@@ -11,8 +11,8 @@ RunService.Stepped:Connect(function()
     end
 end)
 
-local visitedBanks = {} -- Tracks visited banks
-local visitedChairs = {} -- Tracks visited chairs
+local visitedBanks = {} -- Tracks visited banks by their unique name
+local visitedChairs = {} -- Tracks visited chairs by their unique name
 local lastProcessedZ = nil -- Stores the Z-coordinate of the last processed bank
 local teleportCount = 10 -- Maximum number of chair attempts
 
@@ -20,7 +20,7 @@ local teleportCount = 10 -- Maximum number of chair attempts
 local function findClosestChair(bank)
     local closestChair, closestDistance = nil, math.huge
     for _, chair in pairs(workspace.RuntimeItems:GetDescendants()) do
-        if chair.Name == "Chair" and chair:FindFirstChild("Seat") and not visitedChairs[chair] then
+        if chair.Name == "Chair" and chair:FindFirstChild("Seat") and not visitedChairs[chair.Name] then
             local dist = (bank.PrimaryPart.Position - chair.Seat.Position).Magnitude
             if dist < closestDistance then
                 closestChair, closestDistance = chair, dist
@@ -35,11 +35,11 @@ local function findNewBank()
     for _, template in pairs({"MediumTownTemplate", "SmallTownTemplate", "LargeTownTemplate"}) do
         local town = workspace.Towns:FindFirstChild(template)
         local bank = town and town:FindFirstChild("Buildings") and town.Buildings:FindFirstChild("Bank")
-        if bank and bank.PrimaryPart and not visitedBanks[bank] then
+        if bank and bank.PrimaryPart and not visitedBanks[bank.Name] then
             local bankZ = bank.PrimaryPart.Position.Z
-            -- Ensure the bank is at least 5000 blocks away
+            -- Check if the bank is at least 5000 blocks away
             if not lastProcessedZ or math.abs(bankZ - lastProcessedZ) >= 5000 then
-                visitedBanks[bank] = true
+                visitedBanks[bank.Name] = true -- Mark the bank as visited
                 lastProcessedZ = bankZ -- Update last processed Z-coordinate
                 return bank -- Return the new bank
             end
@@ -54,7 +54,7 @@ local function processNewBank(bank)
     local chair = findClosestChair(bank)
     if chair then
         print("Sitting on a chair near bank:", bank.Name)
-        visitedChairs[chair] = true -- Mark chair as visited
+        visitedChairs[chair.Name] = true -- Mark chair as visited
         rootPart.CFrame = chair:GetPivot()
         chair.Seat:Sit(character:WaitForChild("Humanoid"))
     else
@@ -85,7 +85,7 @@ local function moveToNextBank()
         local fallbackChair = findClosestChair() -- Use fallback mechanism to sit on closest chair
         if fallbackChair then
             print("Sitting on the closest available chair.")
-            visitedChairs[fallbackChair] = true -- Mark the fallback chair as visited
+            visitedChairs[fallbackChair.Name] = true -- Mark the fallback chair as visited
             rootPart.CFrame = fallbackChair:GetPivot()
             fallbackChair.Seat:Sit(character:WaitForChild("Humanoid"))
         else
