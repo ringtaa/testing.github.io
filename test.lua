@@ -13,7 +13,7 @@ end)
 
 local visitedBanks = {}
 local visitedChairs = {}
-local excludedZones = {} -- Keeps track of Z-coordinates to avoid within 5000 blocks
+local lastBankZ = nil -- Track the Z-coordinate of the last processed bank
 local teleportCount = 10 -- Maximum attempts to find nearby chairs
 local delayTime = 0.1 -- Delay between chair attempts
 
@@ -31,25 +31,17 @@ local function findClosestChair(bank)
     return closestChair
 end
 
--- Function to search for banks and chairs while excluding zones within 5000 blocks
+-- Function to search for a new bank and iterate nearby chairs
 local function searchForBankAndChair(currentZ)
     for _, template in pairs({"MediumTownTemplate", "SmallTownTemplate", "LargeTownTemplate"}) do
         local town = workspace.Towns:FindFirstChild(template)
         local bank = town and town:FindFirstChild("Buildings") and town.Buildings:FindFirstChild("Bank")
         if bank and bank.PrimaryPart and not visitedBanks[bank] then
-            -- Check if this bank's Z-coordinate is in an excluded zone
             local bankZ = bank.PrimaryPart.Position.Z
-            local isExcluded = false
-            for _, zone in pairs(excludedZones) do
-                if math.abs(bankZ - zone) <= 5000 then
-                    isExcluded = true
-                    break
-                end
-            end
-
-            if not isExcluded then
+            -- Ensure the bank is at least 5000 blocks forward from the last processed bank
+            if not lastBankZ or math.abs(bankZ - lastBankZ) >= 5000 then
                 visitedBanks[bank] = true
-                table.insert(excludedZones, bankZ) -- Save this bank's Z-coordinate as an excluded zone
+                lastBankZ = bankZ -- Update the last processed bank's Z-coordinate
                 print("Found NEW bank at Z:", bankZ)
 
                 -- Iterate nearby chairs and attempt to sit
@@ -65,9 +57,9 @@ local function searchForBankAndChair(currentZ)
                         print("No unvisited chairs found during attempt:", i)
                     end
                 end
-                return true -- Successfully found a new bank
+                return true -- Successfully found and processed a new bank
             else
-                print("Bank at Z:", bankZ, "is in an excluded zone. Skipping.")
+                print("Bank at Z:", bankZ, "is too close to the last processed bank. Skipping.")
             end
         end
     end
@@ -87,9 +79,10 @@ local function moveToNextBank()
 
         -- Check for a new bank at this position
         if searchForBankAndChair(currentZ) then
-            return -- Stop if a new bank is found and processed
+            -- After processing a bank, skip forward at least 5000 blocks
+            currentZ = currentZ - 5000
+            print("Moving 5000 blocks forward from Z:", currentZ)
         end
-        print("Continuing to search for a new bank...")
     end
     warn("Reached -49k Z position but no new banks were found.")
 end
