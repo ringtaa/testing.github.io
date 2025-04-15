@@ -28,32 +28,33 @@ local function findClosestChair(bank)
     return closestChair
 end
 
--- Function to move to the next bank and force a larger tween distance
+-- Function to move to the next bank
 local function moveToNextBank()
-    local lastZ = rootPart.Position.Z -- Track the last Z position
-    for z = lastZ - 3000, -49032.99, -2000 do -- Ensure minimum 3000-block movement
-        print("Tweening to Z:", z) -- Debugging message
-        local tween = TweenService:Create(rootPart, TweenInfo.new(0.5, Enum.EasingStyle.Linear), {CFrame = CFrame.new(57, 3, z)})
-        tween:Play()
-        tween.Completed:Wait() -- Wait for the tween to complete before searching
+    local targetZ = rootPart.Position.Z - 5000 -- Set target Z position for tweening
+    print("Tweening for at least 5 seconds...") -- Debugging message
 
-        for _, template in pairs({"MediumTownTemplate", "SmallTownTemplate", "LargeTownTemplate"}) do
-            local town = workspace.Towns:FindFirstChild(template)
-            local bank = town and town:FindFirstChild("Buildings") and town.Buildings:FindFirstChild("Bank")
-            if bank and bank.PrimaryPart and not visitedBanks[bank] then
-                visitedBanks[bank] = true
+    -- Create a mandatory 5-second tween
+    local tween = TweenService:Create(rootPart, TweenInfo.new(5, Enum.EasingStyle.Linear), {CFrame = CFrame.new(57, 3, targetZ)})
+    tween:Play()
+    tween.Completed:Wait() -- Always wait for the tween to complete before continuing
 
-                -- Find the closest unvisited chair near the bank
-                local chair = findClosestChair(bank)
-                if chair then
-                    print("Found chair near bank:", bank.Name)
-                    visitedChairs[chair] = true -- Mark chair as visited
-                    rootPart.CFrame = chair:GetPivot()
-                    chair.Seat:Sit(character:WaitForChild("Humanoid"))
-                    return -- Stop after successfully finding and sitting on a chair
-                else
-                    print("No unvisited chairs found near bank:", bank.Name)
-                end
+    -- Search for banks and chairs after completing the tween
+    for _, template in pairs({"MediumTownTemplate", "SmallTownTemplate", "LargeTownTemplate"}) do
+        local town = workspace.Towns:FindFirstChild(template)
+        local bank = town and town:FindFirstChild("Buildings") and town.Buildings:FindFirstChild("Bank")
+        if bank and bank.PrimaryPart and not visitedBanks[bank] then
+            visitedBanks[bank] = true
+
+            -- Find the closest unvisited chair near the bank
+            local chair = findClosestChair(bank)
+            if chair then
+                print("Found chair near bank:", bank.Name)
+                visitedChairs[chair] = true -- Mark chair as visited
+                rootPart.CFrame = chair:GetPivot()
+                chair.Seat:Sit(character:WaitForChild("Humanoid"))
+                return -- Stop after successfully finding and sitting on a chair
+            else
+                print("No unvisited chairs found near bank:", bank.Name)
             end
         end
     end
