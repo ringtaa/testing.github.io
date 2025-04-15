@@ -31,20 +31,20 @@ local function findClosestChair(bank)
     return closestChair
 end
 
--- Function to search for a new bank and iterate nearby chairs
+-- Function to search for a new bank and tick 10 times on the spot
 local function searchForBankAndChair(currentZ)
     for _, template in pairs({"MediumTownTemplate", "SmallTownTemplate", "LargeTownTemplate"}) do
         local town = workspace.Towns:FindFirstChild(template)
         local bank = town and town:FindFirstChild("Buildings") and town.Buildings:FindFirstChild("Bank")
         if bank and bank.PrimaryPart and not visitedBanks[bank] then
             local bankZ = bank.PrimaryPart.Position.Z
-            -- Ensure the bank is at least 5000 blocks forward from the last processed bank
+            -- Ensure the bank is at least 5000 blocks away from the last processed bank
             if not lastBankZ or math.abs(bankZ - lastBankZ) >= 5000 then
                 visitedBanks[bank] = true
                 lastBankZ = bankZ -- Update the last processed bank's Z-coordinate
                 print("Found NEW bank at Z:", bankZ)
 
-                -- Iterate nearby chairs and attempt to sit
+                -- Tick 10 times on the spot and attempt to sit on chairs
                 for i = 1, teleportCount do
                     local chair = findClosestChair(bank)
                     if chair then
@@ -79,10 +79,9 @@ local function moveToNextBank()
 
         -- Check for a new bank at this position
         if searchForBankAndChair(currentZ) then
-            -- After processing a bank, skip forward at least 5000 blocks
-            currentZ = currentZ - 5000
-            print("Moving 5000 blocks forward from Z:", currentZ)
+            return -- Stop if a new bank is found and processed
         end
+        print("Continuing to search for a new bank...")
     end
     warn("Reached -49k Z position but no new banks were found.")
 end
