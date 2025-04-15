@@ -67,8 +67,8 @@ end)
 MinimizeButton.MouseButton1Click:Connect(function()
     isMinimized = true -- Disable dragging when minimized
     TweenService:Create(MainFrame, TweenInfo.new(0.3), {
-        Position = UDim2.new(0.5, 0, 0, 0), -- Moves to the very top-middle position
-        Size = UDim2.new(0, 250, 0, 50)    -- Shrinks size
+        Position = UDim2.new(0.5, 0, -0.1, 0), -- Moves even higher in top-middle
+        Size = UDim2.new(0, 250, 0, 50)        -- Shrinks size
     }):Play()
     wait(0.3)
     MainFrame.Visible = false
