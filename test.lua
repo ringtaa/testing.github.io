@@ -11,7 +11,7 @@ local Theme = {
 -- Main UI
 local ScreenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 local MainFrame = Instance.new("Frame", ScreenGui)
-MainFrame.Size = UDim2.new(0, 250, 0, 200) -- Compact size to fit all buttons
+MainFrame.Size = UDim2.new(0, 300, 0, 140) -- Increased width, reduced height
 MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
 MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 MainFrame.BackgroundColor3 = Theme.Background
@@ -19,7 +19,7 @@ Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 8)
 
 local Title = Instance.new("TextLabel", MainFrame)
 Title.Text, Title.Size, Title.Position = "RINGTA SCRIPTS", UDim2.new(1, -20, 0, 25), UDim2.new(0, 10, 0, 5)
-Title.BackgroundTransparency, Title.TextColor3, Title.Font, Title.TextSize = 1, Theme.Text, Enum.Font.GothamBold, 14
+Title.BackgroundTransparency, Title.TextColor3, Title.Font, Title.TextSize = 1, Theme.Text, Enum.Font.GothamBold, 12 -- Smaller text
 
 -- Minimize Button
 local MinimizeButton = Instance.new("TextButton", MainFrame)
@@ -66,11 +66,11 @@ end)
 -- Minimize Functionality
 MinimizeButton.MouseButton1Click:Connect(function()
     isMinimized = true -- Disable dragging when minimized
-    TweenService:Create(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+    TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
         Position = UDim2.new(0.5, 0, -0.1, 0), -- Moves higher in top-middle
-        Size = UDim2.new(0, 250, 0, 50)        -- Shrinks size
+        Size = UDim2.new(0, 300, 0, 50)        -- Shrinks size
     }):Play()
-    wait(0.5) -- Ensures smooth animation timing
+    wait(0.3)
     MainFrame.Visible = false
     ReopenButton.Visible = true
 end)
@@ -80,16 +80,16 @@ ReopenButton.MouseButton1Click:Connect(function()
     isMinimized = false -- Enable dragging when restored
     ReopenButton.Visible = false
     MainFrame.Visible = true
-    TweenService:Create(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+    TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
         Position = UDim2.new(0.5, 0, 0.5, 0), -- Restores original position
-        Size = UDim2.new(0, 250, 0, 200)      -- Restores original compact size
+        Size = UDim2.new(0, 300, 0, 140)      -- Restores compact box-like size
     }):Play()
 end)
 
 -- Button Template
 local function CreateButton(text, callback, position)
     local Button = Instance.new("TextButton", MainFrame)
-    Button.Text, Button.Size, Button.Position = text, UDim2.new(0.8, 0, 0.2, 0), position
+    Button.Text, Button.Size, Button.Position = text, UDim2.new(0.4, 0, 0.4, 0), position -- Adjusted button size
     Button.BackgroundColor3, Button.TextColor3 = Theme.Button, Theme.Text
     Instance.new("UICorner", Button).CornerRadius = UDim.new(0, 6)
 
@@ -108,11 +108,11 @@ end
 -- Buttons for Functionality
 CreateButton("TP to Train", function()
     loadstring(game:HttpGet('https://raw.githubusercontent.com/ringtaa/train.github.io/refs/heads/main/train.lua'))()
-end, UDim2.new(0.1, 0, 0.2, 0))
+end, UDim2.new(0.1, 0, 0.3, 0))
 
 CreateButton("TP to Sterling", function()
     loadstring(game:HttpGet('https://raw.githubusercontent.com/ringtaa/sterlingnotifcation.github.io/refs/heads/main/Sterling.lua'))()
-end, UDim2.new(0.1, 0, 0.4, 0))
+end, UDim2.new(0.55, 0, 0.3, 0))
 
 CreateButton("TP to TeslaLab", function()
     loadstring(game:HttpGet('https://raw.githubusercontent.com/ringtaa/tptotesla.github.io/refs/heads/main/Tptotesla.lua'))()
@@ -120,8 +120,8 @@ end, UDim2.new(0.1, 0, 0.6, 0))
 
 CreateButton("TP to Castle", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/ringtaa/castletpfast.github.io/refs/heads/main/FASTCASTLE.lua"))()
-end, UDim2.new(0.1, 0, 0.8, 0))
+end, UDim2.new(0.55, 0, 0.6, 0))
 
 CreateButton("TP to Fort", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/ringtaa/Tpfort.github.io/refs/heads/main/Tpfort.lua"))()
-end, UDim2.new(0.1, 0, 1.0, 0))
+end, UDim2.new(0.35, 0, 0.9, 0)) -- Centered last button
