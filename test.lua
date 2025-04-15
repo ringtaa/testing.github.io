@@ -12,7 +12,23 @@ RunService.Stepped:Connect(function()
 end)
 
 local visitedBanks = {} -- Tracks visited banks by their unique name
+local visitedChairs = {} -- Tracks visited chairs by their unique name
 local lastBankZ = nil -- Tracks the Z-coordinate of the last processed bank
+local delayTime = 3 -- Delay time in seconds before sitting is allowed
+
+-- Function to find the closest unvisited chair near a bank
+local function findClosestChair(bank)
+    local closestChair, closestDistance = nil, math.huge
+    for _, chair in pairs(workspace.RuntimeItems:GetDescendants()) do
+        if chair.Name == "Chair" and chair:FindFirstChild("Seat") and not visitedChairs[chair.Name] then
+            local dist = (bank.PrimaryPart.Position - chair.Seat.Position).Magnitude
+            if dist < closestDistance then
+                closestChair, closestDistance = chair, dist
+            end
+        end
+    end
+    return closestChair
+end
 
 -- Function to find a new bank that is genuinely new and far enough away
 local function findNewBank()
@@ -21,13 +37,11 @@ local function findNewBank()
         local bank = town and town:FindFirstChild("Buildings") and town.Buildings:FindFirstChild("Bank")
         if bank and bank.PrimaryPart and not visitedBanks[bank.Name] then
             local bankZ = bank.PrimaryPart.Position.Z
-            -- Check if the bank is at least 5000 blocks away
+            -- Check if the bank is at least 5000 blocks away from the last processed bank
             if not lastBankZ or math.abs(bankZ - lastBankZ) >= 5000 then
                 visitedBanks[bank.Name] = true -- Mark the bank as visited
                 lastBankZ = bankZ -- Update the last processed Z-coordinate
                 return bank -- Return the new bank
-            else
-                print("Bank at Z:", bankZ, "is too close to the last processed bank. Skipping.")
             end
         end
     end
@@ -40,11 +54,47 @@ local function processNewBank(bank)
     for i = 1, 10 do
         print("Teleport attempt:", i)
         rootPart.CFrame = bank.PrimaryPart.CFrame -- Teleport to the bank's location
-        local chair = nil -- Reset chair search
-        for _, obj in pairs(workspace.RuntimeItems:GetDescendants()) do
-            if obj.Name == "Chair" and obj:FindFirstChild("Seat") and not visitedBanks[obj] then
-                "Bank Nested could Iff User Side too invalid strict force"
-    }
+        local chair = findClosestChair(bank)
+        if chair then
+            print("Sitting on a chair near bank:", bank.Name)
+            visitedChairs[chair.Name] = true -- Mark the chair as visited
+            rootPart.CFrame = chair:GetPivot()
+            chair.Seat:Sit(character:WaitForChild("Humanoid"))
+            print("Successfully sat down. Stopping script.") -- Stop script after sitting
+            return -- Stop all further execution after sitting down
+        else
+            print("No unvisited chairs found near bank during attempt:", i)
+        end
     end
+    print("Finished 10 teleport attempts but couldn't sit on any chair.")
 end
-Final.notes
+
+-- Function to move forward continuously and delay sitting for 3 seconds
+local function moveAndSit()
+    local startTime = tick() -- Record the script execution time
+    local currentZ = rootPart.Position.Z
+    print("Searching for a new bank...")
+
+    while currentZ > -49000 do -- Keep moving forward until reaching -49k
+        currentZ = currentZ - 2000 -- Move 2000 blocks per step
+        local tween = TweenService:Create(rootPart, TweenInfo.new(0.5, Enum.EasingStyle.Linear), {CFrame = CFrame.new(57, 3, currentZ)})
+        tween:Play()
+        tween.Completed:Wait() -- Wait for the tween to complete
+
+        -- Ensure at least 3 seconds have passed before attempting to find a bank
+        if tick() - startTime >= delayTime then
+            local newBank = findNewBank()
+            if newBank then
+                print("Found a new bank at Z:", newBank.PrimaryPart.Position.Z)
+                processNewBank(newBank) -- Process the new bank
+                return -- Stop movement after processing the bank
+            end
+        else
+            print("Delaying sitting action until 3 seconds have passed.")
+        end
+    end
+    warn("Reached -49k Z position but no new banks were found.")
+end
+
+-- Execute the function to move forward and process banks with a sitting delay
+moveAndSit()
