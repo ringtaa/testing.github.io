@@ -14,6 +14,9 @@ end)
 local visitedBanks = {}
 local visitedChairs = {}
 
+local teleportCount = 10 -- Maximum number of teleport attempts
+local delayTime = 0.1 -- Delay between each teleportation
+
 -- Function to find the closest unvisited chair near the current bank
 local function findClosestChair(bank)
     local closestChair, closestDistance = nil, math.huge
@@ -55,20 +58,24 @@ end
 -- Function to move to the next bank with extended tweening if necessary
 local function moveToNextBank()
     local currentZ = rootPart.Position.Z -- Start from current Z position
-    print("Tweening to find a new bank...") -- Debugging message
+    local attempts = 0 -- Count teleport attempts
+    print("Attempting to find a new bank...") -- Debugging message
 
-    while currentZ > -49000 do -- Keep tweening until reaching -49k if no new bank is found
+    while currentZ > -49000 and attempts < teleportCount do -- Limit teleport attempts and ensure movement until -49k
+        attempts = attempts + 1
         currentZ = currentZ - 2000 -- Move 2000 blocks farther along the Z-axis
         local tween = TweenService:Create(rootPart, TweenInfo.new(0.5, Enum.EasingStyle.Linear), {CFrame = CFrame.new(57, 3, currentZ)})
         tween:Play()
         tween.Completed:Wait() -- Wait for each tween to complete
+
+        wait(delayTime) -- Delay between each teleportation
 
         -- Try to find a bank and chair after each movement
         if searchForBankAndChair() then
             return -- Stop if a new bank and chair are found
         end
     end
-    warn("Reached -49k Z position but no new banks or chairs were found.")
+    warn("Reached -49k Z position or exceeded teleport attempts but no new banks or chairs were found.")
 end
 
 -- Execute the function to move to the next bank and chair
