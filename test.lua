@@ -14,18 +14,20 @@ end)
 local visitedBanks = {} -- Tracks visited banks by their unique name
 local lastProcessedZ = nil -- Stores the Z-coordinate of the last processed bank
 
--- Function to find a new bank that is genuinely new and far enough away
+-- Function to check for new banks
 local function findNewBank()
     for _, template in pairs({"MediumTownTemplate", "SmallTownTemplate", "LargeTownTemplate"}) do
-        local town = workspace.Towns:FindFirstChild(template)
-        local bank = town and town:FindFirstChild("Buildings") and town.Buildings:FindFirstChild("Bank")
-        if bank and bank.PrimaryPart and not visitedBanks[bank.Name] then
-            local bankZ = bank.PrimaryPart.Position.Z
-            -- Check if the bank is at least 5000 blocks away
-            if not lastProcessedZ or math.abs(bankZ - lastProcessedZ) >= 5000 then
-                visitedBanks[bank.Name] = true -- Mark the bank as visited
-                lastProcessedZ = bankZ -- Update last processed Z-coordinate
-                return bank -- Return the new bank
+        local town = workspace:FindFirstChild("Towns") and workspace.Towns:FindFirstChild(template)
+        if town then
+            local bank = town:FindFirstChild("Buildings") and town.Buildings:FindFirstChild("Bank")
+            if bank and bank:FindFirstChild("PrimaryPart") and not visitedBanks[bank.Name] then
+                local bankZ = bank.PrimaryPart.Position.Z
+                -- Ensure the bank is at least 5000 blocks away
+                if not lastProcessedZ or math.abs(bankZ - lastProcessedZ) >= 5000 then
+                    visitedBanks[bank.Name] = true
+                    lastProcessedZ = bankZ -- Update last processed Z-coordinate
+                    return bank -- Return the new bank
+                end
             end
         end
     end
