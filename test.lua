@@ -11,20 +11,10 @@ RunService.Stepped:Connect(function()
     end
 end)
 
-local visitedBanks = {} -- Track visited banks
-local visitedChairs = {} -- Track visited chairs
-local lastProcessedZ = nil -- Track Z-coordinate of the last processed bank
-local teleportCount = 10 -- Maximum attempts to interact with chairs
-
--- Function to check if a bank is genuinely new and far enough from the last processed bank
-local function isNewBank(bank)
-    local bankZ = bank.PrimaryPart.Position.Z
-    if not lastProcessedZ or math.abs(bankZ - lastProcessedZ) >= 5000 then
-        return true -- Bank is new and far enough away
-    else
-        return false -- Bank is too close to the last processed one
-    end
-end
+local visitedBanks = {} -- Tracks visited banks
+local visitedChairs = {} -- Tracks visited chairs
+local lastProcessedZ = nil -- Stores the Z-coordinate of the last processed bank
+local teleportCount = 10 -- Maximum number of chair attempts
 
 -- Function to find the closest unvisited chair near a bank
 local function findClosestChair(bank)
@@ -38,6 +28,24 @@ local function findClosestChair(bank)
         end
     end
     return closestChair
+end
+
+-- Function to find a new bank that is genuinely new and far enough away
+local function findNewBank()
+    for _, template in pairs({"MediumTownTemplate", "SmallTownTemplate", "LargeTownTemplate"}) do
+        local town = workspace.Towns:FindFirstChild(template)
+        local bank = town and town:FindFirstChild("Buildings") and town.Buildings:FindFirstChild("Bank")
+        if bank and bank.PrimaryPart and not visitedBanks[bank] then
+            local bankZ = bank.PrimaryPart.Position.Z
+            -- Ensure the bank is at least 5000 blocks away
+            if not lastProcessedZ or math.abs(bankZ - lastProcessedZ) >= 5000 then
+                visitedBanks[bank] = true
+                lastProcessedZ = bankZ -- Update last processed Z-coordinate
+                return bank -- Return the new bank
+            end
+        end
+    end
+    return nil -- No new banks found
 end
 
 -- Function to process the bank and sit on one chair
@@ -54,23 +62,7 @@ local function processNewBank(bank)
     end
 end
 
--- Function to search for a truly new bank and process it
-local function findNewBank()
-    for _, template in pairs({"MediumTownTemplate", "SmallTownTemplate", "LargeTownTemplate"}) do
-        local town = workspace.Towns:FindFirstChild(template)
-        local bank = town and town:FindFirstChild("Buildings") and town.Buildings:FindFirstChild("Bank")
-        if bank and bank.PrimaryPart and not visitedBanks[bank] then
-            if isNewBank(bank) then
-                visitedBanks[bank] = true -- Mark the bank as visited
-                lastProcessedZ = bank.PrimaryPart.Position.Z -- Update last processed Z-coordinate
-                return bank -- Return the new bank
-            end
-        end
-    end
-    return nil -- No new banks found
-end
-
--- Function to move forward at least 5000 blocks and search for a new bank
+-- Function to move forward by at least 5000 blocks before searching for a new bank
 local function moveToNextBank()
     local currentZ = rootPart.Position.Z
     print("Moving forward at least 5000 blocks...")
@@ -89,7 +81,16 @@ local function moveToNextBank()
     if newBank then
         processNewBank(newBank) -- Process the new bank and sit on one chair
     else
-        warn("No new banks found after moving forward 5000 blocks.")
+        print("No new banks found. Falling back to the closest chair.")
+        local fallbackChair = findClosestChair() -- Use fallback mechanism to sit on closest chair
+        if fallbackChair then
+            print("Sitting on the closest available chair.")
+            visitedChairs[fallbackChair] = true -- Mark the fallback chair as visited
+            rootPart.CFrame = fallbackChair:GetPivot()
+            fallbackChair.Seat:Sit(character:WaitForChild("Humanoid"))
+        else
+            warn("No chairs found to sit on.")
+        end
     end
 end
 
