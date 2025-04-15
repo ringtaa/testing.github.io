@@ -19,7 +19,7 @@ Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 8)
 
 local Title = Instance.new("TextLabel", MainFrame)
 Title.Text, Title.Size, Title.Position = "RINGTA SCRIPTS", UDim2.new(1, -20, 0, 25), UDim2.new(0, 10, 0, 5)
-Title.BackgroundTransparency, Title.TextColor3, Title.Font, Title.TextSize = 1, Theme.Text, Enum.Font.GothamBold, 14 -- Smaller text
+Title.BackgroundTransparency, Title.TextColor3, Title.Font, Title.TextSize = 1, Theme.Text, Enum.Font.GothamBold, 14
 
 -- Minimize Button
 local MinimizeButton = Instance.new("TextButton", MainFrame)
@@ -66,11 +66,11 @@ end)
 -- Minimize Functionality
 MinimizeButton.MouseButton1Click:Connect(function()
     isMinimized = true -- Disable dragging when minimized
-    TweenService:Create(MainFrame, TweenInfo.new(0.3), {
+    TweenService:Create(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
         Position = UDim2.new(0.5, 0, -0.1, 0), -- Moves higher in top-middle
         Size = UDim2.new(0, 250, 0, 50)        -- Shrinks size
     }):Play()
-    wait(0.3)
+    wait(0.5) -- Ensures smooth animation timing
     MainFrame.Visible = false
     ReopenButton.Visible = true
 end)
@@ -80,7 +80,7 @@ ReopenButton.MouseButton1Click:Connect(function()
     isMinimized = false -- Enable dragging when restored
     ReopenButton.Visible = false
     MainFrame.Visible = true
-    TweenService:Create(MainFrame, TweenInfo.new(0.3), {
+    TweenService:Create(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
         Position = UDim2.new(0.5, 0, 0.5, 0), -- Restores original position
         Size = UDim2.new(0, 250, 0, 180)      -- Restores original compact size
     }):Play()
