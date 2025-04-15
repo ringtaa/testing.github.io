@@ -11,15 +11,15 @@ local Theme = {
 -- Main UI
 local ScreenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 local MainFrame = Instance.new("Frame", ScreenGui)
-MainFrame.Size = UDim2.new(0, 250, 0, 280) -- Increased height for the new button
+MainFrame.Size = UDim2.new(0, 250, 0, 180) -- Compact height
 MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
 MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 MainFrame.BackgroundColor3 = Theme.Background
 Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 8)
 
 local Title = Instance.new("TextLabel", MainFrame)
-Title.Text, Title.Size, Title.Position = "RINGTA SCRIPTS", UDim2.new(1, -20, 0, 30), UDim2.new(0, 10, 0, 10)
-Title.BackgroundTransparency, Title.TextColor3, Title.Font, Title.TextSize = 1, Theme.Text, Enum.Font.GothamBold, 16
+Title.Text, Title.Size, Title.Position = "RINGTA SCRIPTS", UDim2.new(1, -20, 0, 25), UDim2.new(0, 10, 0, 5)
+Title.BackgroundTransparency, Title.TextColor3, Title.Font, Title.TextSize = 1, Theme.Text, Enum.Font.GothamBold, 14 -- Smaller text
 
 -- Minimize Button
 local MinimizeButton = Instance.new("TextButton", MainFrame)
@@ -67,7 +67,7 @@ end)
 MinimizeButton.MouseButton1Click:Connect(function()
     isMinimized = true -- Disable dragging when minimized
     TweenService:Create(MainFrame, TweenInfo.new(0.3), {
-        Position = UDim2.new(0.5, 0, -0.1, 0), -- Moves even higher in top-middle
+        Position = UDim2.new(0.5, 0, -0.1, 0), -- Moves higher in top-middle
         Size = UDim2.new(0, 250, 0, 50)        -- Shrinks size
     }):Play()
     wait(0.3)
@@ -82,7 +82,7 @@ ReopenButton.MouseButton1Click:Connect(function()
     MainFrame.Visible = true
     TweenService:Create(MainFrame, TweenInfo.new(0.3), {
         Position = UDim2.new(0.5, 0, 0.5, 0), -- Restores original position
-        Size = UDim2.new(0, 250, 0, 280)      -- Restores original size
+        Size = UDim2.new(0, 250, 0, 180)      -- Restores original compact size
     }):Play()
 end)
 
@@ -108,20 +108,20 @@ end
 -- Buttons for Functionality
 CreateButton("TP to Train", function()
     loadstring(game:HttpGet('https://raw.githubusercontent.com/ringtaa/train.github.io/refs/heads/main/train.lua'))()
-end, UDim2.new(0.1, 0, 0.2, 0)) -- Train remains the first button
+end, UDim2.new(0.1, 0, 0.25, 0))
 
 CreateButton("TP to Sterling", function()
     loadstring(game:HttpGet('https://raw.githubusercontent.com/ringtaa/sterlingnotifcation.github.io/refs/heads/main/Sterling.lua'))()
-end, UDim2.new(0.1, 0, 0.35, 0)) -- Sterling remains second
+end, UDim2.new(0.1, 0, 0.45, 0))
 
 CreateButton("TP to TeslaLab", function()
     loadstring(game:HttpGet('https://raw.githubusercontent.com/ringtaa/tptotesla.github.io/refs/heads/main/Tptotesla.lua'))()
-end, UDim2.new(0.1, 0, 0.5, 0)) -- TeslaLab remains third
+end, UDim2.new(0.1, 0, 0.65, 0))
 
 CreateButton("TP to Castle", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/ringtaa/castletpfast.github.io/refs/heads/main/FASTCASTLE.lua"))()
-end, UDim2.new(0.1, 0, 0.65, 0)) -- Castle remains fourth
+end, UDim2.new(0.1, 0, 0.85, 0))
 
 CreateButton("TP to Fort", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/ringtaa/Tpfort.github.io/refs/heads/main/Tpfort.lua"))()
-end, UDim2.new(0.1, 0, 0.8, 0)) -- Fort is added as the last button
+end, UDim2.new(0.1, 0, 1.05, 0))
