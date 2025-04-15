@@ -11,7 +11,7 @@ local Theme = {
 -- Main UI
 local ScreenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 local MainFrame = Instance.new("Frame", ScreenGui)
-MainFrame.Size = UDim2.new(0, 250, 0, 160)
+MainFrame.Size = UDim2.new(0, 250, 0, 200) -- Increased height for additional button
 MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
 MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 MainFrame.BackgroundColor3 = Theme.Background
@@ -67,7 +67,7 @@ end)
 MinimizeButton.MouseButton1Click:Connect(function()
     isMinimized = true -- Disable dragging when minimized
     TweenService:Create(MainFrame, TweenInfo.new(0.3), {
-        Position = UDim2.new(0.5, 0, -3, 0), -- Moves even higher in top-middle
+        Position = UDim2.new(0.5, 0, -0.1, 0), -- Moves even higher in top-middle
         Size = UDim2.new(0, 250, 0, 50)        -- Shrinks size
     }):Play()
     wait(0.3)
@@ -82,14 +82,14 @@ ReopenButton.MouseButton1Click:Connect(function()
     MainFrame.Visible = true
     TweenService:Create(MainFrame, TweenInfo.new(0.3), {
         Position = UDim2.new(0.5, 0, 0.5, 0), -- Restores original position
-        Size = UDim2.new(0, 250, 0, 160)      -- Restores original size
+        Size = UDim2.new(0, 250, 0, 200)      -- Restores original size
     }):Play()
 end)
 
 -- Button Template
 local function CreateButton(text, callback, position)
     local Button = Instance.new("TextButton", MainFrame)
-    Button.Text, Button.Size, Button.Position = text, UDim2.new(0.8, 0, 0.25, 0), position
+    Button.Text, Button.Size, Button.Position = text, UDim2.new(0.8, 0, 0.2, 0), position
     Button.BackgroundColor3, Button.TextColor3 = Theme.Button, Theme.Text
     Instance.new("UICorner", Button).CornerRadius = UDim.new(0, 6)
 
@@ -106,10 +106,14 @@ local function CreateButton(text, callback, position)
 end
 
 -- Buttons for Functionality
-CreateButton("TP to Sterling", function()
-    loadstring(game:HttpGet('https://raw.githubusercontent.com/ringtaa/sterlingnotifcation.github.io/refs/heads/main/Sterling.lua'))()
-end, UDim2.new(0.1, 0, 0.4, 0))
-
 CreateButton("TP to Train", function()
     loadstring(game:HttpGet('https://raw.githubusercontent.com/ringtaa/train.github.io/refs/heads/main/train.lua'))()
+end, UDim2.new(0.1, 0, 0.3, 0)) -- Train is now the first button
+
+CreateButton("TP to Sterling", function()
+    loadstring(game:HttpGet('https://raw.githubusercontent.com/ringtaa/sterlingnotifcation.github.io/refs/heads/main/Sterling.lua'))()
+end, UDim2.new(0.1, 0, 0.5, 0)) -- Sterling moved to second button
+
+CreateButton("TP to TeslaLab", function()
+    loadstring(game:HttpGet('https://raw.githubusercontent.com/ringtaa/tptotesla.github.io/refs/heads/main/Tptotesla.lua'))()
 end, UDim2.new(0.1, 0, 0.7, 0))
