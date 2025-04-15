@@ -51,7 +51,8 @@ local function moveAndSit()
             lastSittingZ = chair.Seat.Position.Z -- Save the Z-coordinate of the sitting location
             rootPart.CFrame = chair:GetPivot()
             chair.Seat:Sit(character:WaitForChild("Humanoid"))
-            return -- Stop execution immediately after sitting on the first chair
+            print("Script stopped after sitting down.") -- Stop all actions
+            return -- Stop further execution completely after sitting down
         end
     end
     warn("Reached -49k Z position but no valid chairs were found.")
