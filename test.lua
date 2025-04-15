@@ -25,16 +25,19 @@ MinimizeButton.Text, MinimizeButton.Size, MinimizeButton.Position = "-", UDim2.n
 MinimizeButton.BackgroundColor3, MinimizeButton.TextColor3 = Theme.Button, Theme.Text
 Instance.new("UICorner", MinimizeButton).CornerRadius = UDim.new(0, 6)
 
--- Reopen Button (Initially Hidden)
+-- Reopen Button (Hidden When UI is Active)
 local ReopenButton = Instance.new("TextButton", ScreenGui)
-ReopenButton.Text, ReopenButton.Size, ReopenButton.Position = "Open RINGTA SCRIPTS", UDim2.new(0, 150, 0, 30), UDim2.new(0.5, -75, 0.5, 50)
-ReopenButton.AnchorPoint, ReopenButton.Visible = Vector2.new(0.5, 0.5), false
+ReopenButton.Text, ReopenButton.Size, ReopenButton.Position = "Open RINGTA SCRIPTS", UDim2.new(0, 150, 0, 30), UDim2.new(0.5, -75, 0.1, 0)
+ReopenButton.AnchorPoint, ReopenButton.Visible = Vector2.new(0.5, 0), false
 ReopenButton.BackgroundColor3, ReopenButton.TextColor3 = Theme.Button, Theme.Text
 Instance.new("UICorner", ReopenButton).CornerRadius = UDim.new(0, 6)
 
 -- Minimize Functionality
 MinimizeButton.MouseButton1Click:Connect(function()
-    TweenService:Create(MainFrame, TweenInfo.new(0.3), {Size = UDim2.new(0, 0, 0, 0)}):Play()
+    TweenService:Create(MainFrame, TweenInfo.new(0.3), {
+        Position = UDim2.new(0.5, -125, 0.1, 0), -- Moves to top-middle
+        Size = UDim2.new(0, 250, 0, 50)         -- Shrinks size
+    }):Play()
     wait(0.3)
     MainFrame.Visible = false
     ReopenButton.Visible = true
@@ -44,7 +47,10 @@ end)
 ReopenButton.MouseButton1Click:Connect(function()
     ReopenButton.Visible = false
     MainFrame.Visible = true
-    TweenService:Create(MainFrame, TweenInfo.new(0.3), {Size = UDim2.new(0, 250, 0, 120)}):Play()
+    TweenService:Create(MainFrame, TweenInfo.new(0.3), {
+        Position = UDim2.new(0.5, -125, 0.5, -60), -- Restores original position
+        Size = UDim2.new(0, 250, 0, 120)          -- Restores original size
+    }):Play()
 end)
 
 -- TP Button
