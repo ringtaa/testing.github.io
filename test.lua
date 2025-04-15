@@ -12,12 +12,13 @@ RunService.Stepped:Connect(function()
 end)
 
 local visitedBanks = {}
+local visitedChairs = {}
 
--- Function to find the closest chair near the current bank
+-- Function to find the closest unvisited chair near the current bank
 local function findClosestChair(bank)
     local closestChair, closestDistance = nil, math.huge
     for _, chair in pairs(workspace.RuntimeItems:GetDescendants()) do
-        if chair.Name == "Chair" and chair:FindFirstChild("Seat") then
+        if chair.Name == "Chair" and chair:FindFirstChild("Seat") and not visitedChairs[chair] then
             local dist = (bank.PrimaryPart.Position - chair.Seat.Position).Magnitude
             if dist < closestDistance then
                 closestChair, closestDistance = chair, dist
@@ -42,15 +43,16 @@ local function moveToNextBank()
             if bank and bank.PrimaryPart and not visitedBanks[bank] then
                 visitedBanks[bank] = true
 
-                -- Find the closest chair near the bank
+                -- Find the closest unvisited chair near the bank
                 local chair = findClosestChair(bank)
                 if chair then
                     print("Found chair near bank:", bank.Name)
+                    visitedChairs[chair] = true -- Mark chair as visited
                     rootPart.CFrame = chair:GetPivot()
                     chair.Seat:Sit(character:WaitForChild("Humanoid"))
                     return -- Stop after successfully finding and sitting on a chair
                 else
-                    print("No chairs found near bank:", bank.Name)
+                    print("No unvisited chairs found near bank:", bank.Name)
                 end
             end
         end
