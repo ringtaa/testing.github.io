@@ -11,14 +11,14 @@ local Theme = {
 -- Main UI
 local ScreenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 local MainFrame = Instance.new("Frame", ScreenGui)
-MainFrame.Size = UDim2.new(0, 250, 0, 200) -- Reduced height for compact design
+MainFrame.Size = UDim2.new(0, 250, 0, 150) -- Reduced height
 MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
 MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 MainFrame.BackgroundColor3 = Theme.Background
 Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 8)
 
 local Title = Instance.new("TextLabel", MainFrame)
-Title.Text, Title.Size, Title.Position = "RINGTA SCRIPTS", UDim2.new(1, -20, 0, 25), UDim2.new(0, 10, 0, 5)
+Title.Text, Title.Size, Title.Position = "RINGTA SCRIPTS", UDim2.new(1, -20, 0, 20), UDim2.new(0, 10, 0, 5)
 Title.BackgroundTransparency, Title.TextColor3, Title.Font, Title.TextSize = 1, Theme.Text, Enum.Font.GothamBold, 14
 
 -- Minimize Button
@@ -82,14 +82,14 @@ ReopenButton.MouseButton1Click:Connect(function()
     MainFrame.Visible = true
     TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
         Position = UDim2.new(0.5, 0, 0.5, 0), -- Restores original position
-        Size = UDim2.new(0, 250, 0, 200)      -- Restores compact size
+        Size = UDim2.new(0, 250, 0, 150)      -- Restored smaller height
     }):Play()
 end)
 
 -- Button Template
 local function CreateButton(text, callback, position)
     local Button = Instance.new("TextButton", MainFrame)
-    Button.Text, Button.Size, Button.Position = text, UDim2.new(0.8, 0, 0.15, 0), position -- Adjusted for compact ladder
+    Button.Text, Button.Size, Button.Position = text, UDim2.new(0.8, 0, 0.12, 0), position -- Adjusted for smaller spacing
     Button.BackgroundColor3, Button.TextColor3 = Theme.Button, Theme.Text
     Instance.new("UICorner", Button).CornerRadius = UDim.new(0, 6)
 
@@ -101,7 +101,6 @@ local function CreateButton(text, callback, position)
         Button.BackgroundColor3 = Theme.Button
     end)
 
-    -- Button Click Event
     Button.MouseButton1Click:Connect(callback)
 end
 
@@ -112,16 +111,16 @@ end, UDim2.new(0.1, 0, 0.2, 0))
 
 CreateButton("TP to Sterling", function()
     loadstring(game:HttpGet('https://raw.githubusercontent.com/ringtaa/sterlingnotifcation.github.io/refs/heads/main/Sterling.lua'))()
-end, UDim2.new(0.1, 0, 0.35, 0))
+end, UDim2.new(0.1, 0, 0.33, 0))
 
 CreateButton("TP to TeslaLab", function()
     loadstring(game:HttpGet('https://raw.githubusercontent.com/ringtaa/tptotesla.github.io/refs/heads/main/Tptotesla.lua'))()
-end, UDim2.new(0.1, 0, 0.5, 0))
+end, UDim2.new(0.1, 0, 0.46, 0))
 
 CreateButton("TP to Castle", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/ringtaa/castletpfast.github.io/refs/heads/main/FASTCASTLE.lua"))()
-end, UDim2.new(0.1, 0, 0.65, 0))
+end, UDim2.new(0.1, 0, 0.59, 0))
 
 CreateButton("TP to Fort", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/ringtaa/Tpfort.github.io/refs/heads/main/Tpfort.lua"))()
-end, UDim2.new(0.1, 0, 0.8, 0))
+end, UDim2.new(0.1, 0, 0.72, 0))
