@@ -27,9 +27,10 @@ local function findClosestChair(bank)
     return closestChair
 end
 
--- Function to move to the next bank
+-- Function to move to the next bank and force a larger tween distance
 local function moveToNextBank()
-    for z = 30000, -49032.99, -2000 do
+    local lastZ = rootPart.Position.Z -- Track the last Z position
+    for z = lastZ - 3000, -49032.99, -2000 do -- Ensure minimum 3000-block movement
         print("Tweening to Z:", z) -- Debugging message
         local tween = TweenService:Create(rootPart, TweenInfo.new(0.5, Enum.EasingStyle.Linear), {CFrame = CFrame.new(57, 3, z)})
         tween:Play()
