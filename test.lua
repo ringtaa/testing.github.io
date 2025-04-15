@@ -11,7 +11,7 @@ local Theme = {
 -- Main UI
 local ScreenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 local MainFrame = Instance.new("Frame", ScreenGui)
-MainFrame.Size = UDim2.new(0, 250, 0, 170) -- Slightly increased height
+MainFrame.Size = UDim2.new(0, 250, 0, 185) -- Slightly increased height
 MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
 MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 MainFrame.BackgroundColor3 = Theme.Background
