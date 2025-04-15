@@ -11,7 +11,7 @@ local Theme = {
 -- Main UI
 local ScreenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 local MainFrame = Instance.new("Frame", ScreenGui)
-MainFrame.Size, MainFrame.Position = UDim2.new(0, 250, 0, 120), UDim2.new(0.5, -125, 0.5, -60)
+MainFrame.Size, MainFrame.Position = UDim2.new(0, 250, 0, 160), UDim2.new(0.5, -125, 0.5, -80)
 MainFrame.AnchorPoint, MainFrame.BackgroundColor3 = Vector2.new(0.5, 0.5), Theme.Background
 Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 8)
 
@@ -48,45 +48,35 @@ ReopenButton.MouseButton1Click:Connect(function()
     ReopenButton.Visible = false
     MainFrame.Visible = true
     TweenService:Create(MainFrame, TweenInfo.new(0.3), {
-        Position = UDim2.new(0.5, -125, 0.5, -60), -- Restores original position
-        Size = UDim2.new(0, 250, 0, 120)          -- Restores original size
+        Position = UDim2.new(0.5, -125, 0.5, -80), -- Restores original position
+        Size = UDim2.new(0, 250, 0, 160)          -- Restores original size
     }):Play()
 end)
 
--- TP Button
-local TPButton = Instance.new("TextButton", MainFrame)
-TPButton.Text, TPButton.Size, TPButton.Position = "TP to Sterling", UDim2.new(0.8, 0, 0.3, 0), UDim2.new(0.1, 0, 0.5, 0)
-TPButton.BackgroundColor3, TPButton.TextColor3 = Theme.Button, Theme.Text
-Instance.new("UICorner", TPButton).CornerRadius = UDim.new(0, 6)
+-- Button Template
+local function CreateButton(text, callback, position)
+    local Button = Instance.new("TextButton", MainFrame)
+    Button.Text, Button.Size, Button.Position = text, UDim2.new(0.8, 0, 0.25, 0), position
+    Button.BackgroundColor3, Button.TextColor3 = Theme.Button, Theme.Text
+    Instance.new("UICorner", Button).CornerRadius = UDim.new(0, 6)
 
--- TP Button Functionality
-TPButton.MouseButton1Click:Connect(function()
+    -- Button Hover Effects
+    Button.MouseEnter:Connect(function()
+        Button.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    end)
+    Button.MouseLeave:Connect(function()
+        Button.BackgroundColor3 = Theme.Button
+    end)
+
+    -- Button Click Event
+    Button.MouseButton1Click:Connect(callback)
+end
+
+-- Buttons for Functionality
+CreateButton("TP to Sterling", function()
     loadstring(game:HttpGet('https://raw.githubusercontent.com/ringtaa/sterlingnotifcation.github.io/refs/heads/main/Sterling.lua'))()
-end)
+end, UDim2.new(0.1, 0, 0.4, 0))
 
--- Dragging Functionality
-local dragging, dragStart, startPos
-
-MainFrame.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true
-        dragStart = input.Position
-        startPos = MainFrame.Position
-
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                dragging = false
-            end
-        end)
-    end
-end)
-
-MainFrame.InputChanged:Connect(function(input)
-    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-        local delta = input.Position - dragStart
-        MainFrame.Position = UDim2.new(
-            startPos.X.Scale, startPos.X.Offset + delta.X,
-            startPos.Y.Scale, startPos.Y.Offset + delta.Y
-        )
-    end
-end)
+CreateButton("TP to Train", function()
+    loadstring(game:HttpGet('https://raw.githubusercontent.com/ringtaa/train.github.io/refs/heads/main/train.lua'))()
+end, UDim2.new(0.1, 0, 0.7, 0))
