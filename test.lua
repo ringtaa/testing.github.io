@@ -35,7 +35,7 @@ Instance.new("UICorner", ReopenButton).CornerRadius = UDim.new(0, 6)
 -- Minimize Functionality
 MinimizeButton.MouseButton1Click:Connect(function()
     TweenService:Create(MainFrame, TweenInfo.new(0.3), {
-        Position = UDim2.new(0.5, -125, 0.1, 0), -- Moves to top-middle
+        Position = UDim2.new(0.5, -125, 0, 20), -- Moves to top-middle
         Size = UDim2.new(0, 250, 0, 50)         -- Shrinks size
     }):Play()
     wait(0.3)
@@ -80,3 +80,30 @@ end, UDim2.new(0.1, 0, 0.4, 0))
 CreateButton("TP to Train", function()
     loadstring(game:HttpGet('https://raw.githubusercontent.com/ringtaa/train.github.io/refs/heads/main/train.lua'))()
 end, UDim2.new(0.1, 0, 0.7, 0))
+
+-- Dragging Functionality
+local dragging, dragStart, startPos
+
+MainFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = MainFrame.Position
+
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+MainFrame.InputChanged:Connect(function(input)
+    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+        local delta = input.Position - dragStart
+        MainFrame.Position = UDim2.new(
+            startPos.X.Scale, startPos.X.Offset + delta.X,
+            startPos.Y.Scale, startPos.Y.Offset + delta.Y
+        )
+    end
+end)
