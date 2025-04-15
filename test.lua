@@ -29,7 +29,7 @@ Instance.new("UICorner", MinimizeButton).CornerRadius = UDim.new(0, 6)
 
 -- Reopen Button (Hidden When UI is Active)
 local ReopenButton = Instance.new("TextButton", ScreenGui)
-ReopenButton.Text, ReopenButton.Size, ReopenButton.Position = "Open RINGTA SCRIPTS", UDim2.new(0, 150, 0, 30), UDim2.new(0.5, 0, 0.05, 0)
+ReopenButton.Text, ReopenButton.Size, ReopenButton.Position = "Open RINGTA SCRIPTS", UDim2.new(0, 150, 0, 30), UDim2.new(0.5, 0, 0.02, 0)
 ReopenButton.AnchorPoint, ReopenButton.Visible = Vector2.new(0.5, 0), false
 ReopenButton.BackgroundColor3, ReopenButton.TextColor3 = Theme.Button, Theme.Text
 Instance.new("UICorner", ReopenButton).CornerRadius = UDim.new(0, 6)
@@ -67,7 +67,7 @@ end)
 MinimizeButton.MouseButton1Click:Connect(function()
     isMinimized = true -- Disable dragging when minimized
     TweenService:Create(MainFrame, TweenInfo.new(0.3), {
-        Position = UDim2.new(0.5, 0, 0.05, 0), -- Moves to a higher top-middle position
+        Position = UDim2.new(0.5, 0, 0.02, 0), -- Moves to a higher top-middle position
         Size = UDim2.new(0, 250, 0, 50)       -- Shrinks size
     }):Play()
     wait(0.3)
