@@ -11,7 +11,7 @@ local Theme = {
 -- Main UI
 local ScreenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 local MainFrame = Instance.new("Frame", ScreenGui)
-MainFrame.Size = UDim2.new(0, 250, 0, 200) -- Increased height for additional button
+MainFrame.Size = UDim2.new(0, 250, 0, 280) -- Increased height for the new button
 MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
 MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 MainFrame.BackgroundColor3 = Theme.Background
@@ -82,7 +82,7 @@ ReopenButton.MouseButton1Click:Connect(function()
     MainFrame.Visible = true
     TweenService:Create(MainFrame, TweenInfo.new(0.3), {
         Position = UDim2.new(0.5, 0, 0.5, 0), -- Restores original position
-        Size = UDim2.new(0, 250, 0, 200)      -- Restores original size
+        Size = UDim2.new(0, 250, 0, 280)      -- Restores original size
     }):Play()
 end)
 
@@ -108,12 +108,20 @@ end
 -- Buttons for Functionality
 CreateButton("TP to Train", function()
     loadstring(game:HttpGet('https://raw.githubusercontent.com/ringtaa/train.github.io/refs/heads/main/train.lua'))()
-end, UDim2.new(0.1, 0, 0.3, 0)) -- Train is now the first button
+end, UDim2.new(0.1, 0, 0.2, 0)) -- Train remains the first button
 
 CreateButton("TP to Sterling", function()
     loadstring(game:HttpGet('https://raw.githubusercontent.com/ringtaa/sterlingnotifcation.github.io/refs/heads/main/Sterling.lua'))()
-end, UDim2.new(0.1, 0, 0.5, 0)) -- Sterling moved to second button
+end, UDim2.new(0.1, 0, 0.35, 0)) -- Sterling remains second
 
 CreateButton("TP to TeslaLab", function()
     loadstring(game:HttpGet('https://raw.githubusercontent.com/ringtaa/tptotesla.github.io/refs/heads/main/Tptotesla.lua'))()
-end, UDim2.new(0.1, 0, 0.7, 0))
+end, UDim2.new(0.1, 0, 0.5, 0)) -- TeslaLab remains third
+
+CreateButton("TP to Castle", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/ringtaa/castletpfast.github.io/refs/heads/main/FASTCASTLE.lua"))()
+end, UDim2.new(0.1, 0, 0.65, 0)) -- Castle remains fourth
+
+CreateButton("TP to Fort", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/ringtaa/Tpfort.github.io/refs/heads/main/Tpfort.lua"))()
+end, UDim2.new(0.1, 0, 0.8, 0)) -- Fort is added as the last button
