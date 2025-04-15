@@ -11,8 +11,10 @@ local Theme = {
 -- Main UI
 local ScreenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 local MainFrame = Instance.new("Frame", ScreenGui)
-MainFrame.Size, MainFrame.Position = UDim2.new(0, 250, 0, 160), UDim2.new(0.5, -125, 0.5, -80)
-MainFrame.AnchorPoint, MainFrame.BackgroundColor3 = Vector2.new(0.5, 0.5), Theme.Background
+MainFrame.Size = UDim2.new(0, 250, 0, 160)
+MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+MainFrame.BackgroundColor3 = Theme.Background
 Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 8)
 
 local Title = Instance.new("TextLabel", MainFrame)
@@ -27,7 +29,7 @@ Instance.new("UICorner", MinimizeButton).CornerRadius = UDim.new(0, 6)
 
 -- Reopen Button (Hidden When UI is Active)
 local ReopenButton = Instance.new("TextButton", ScreenGui)
-ReopenButton.Text, ReopenButton.Size, ReopenButton.Position = "Open RINGTA SCRIPTS", UDim2.new(0, 150, 0, 30), UDim2.new(0.5, -75, 0.1, 0)
+ReopenButton.Text, ReopenButton.Size, ReopenButton.Position = "Open RINGTA SCRIPTS", UDim2.new(0, 150, 0, 30), UDim2.new(0.5, 0, 0.1, 0)
 ReopenButton.AnchorPoint, ReopenButton.Visible = Vector2.new(0.5, 0), false
 ReopenButton.BackgroundColor3, ReopenButton.TextColor3 = Theme.Button, Theme.Text
 Instance.new("UICorner", ReopenButton).CornerRadius = UDim.new(0, 6)
@@ -35,8 +37,8 @@ Instance.new("UICorner", ReopenButton).CornerRadius = UDim.new(0, 6)
 -- Minimize Functionality
 MinimizeButton.MouseButton1Click:Connect(function()
     TweenService:Create(MainFrame, TweenInfo.new(0.3), {
-        Position = UDim2.new(0.5, -125, 0, 20), -- Moves to top-middle
-        Size = UDim2.new(0, 250, 0, 50)         -- Shrinks size
+        Position = UDim2.new(0.5, 0, 0.1, 0), -- Moves to top-middle
+        Size = UDim2.new(0, 250, 0, 50)       -- Shrinks size
     }):Play()
     wait(0.3)
     MainFrame.Visible = false
@@ -48,8 +50,8 @@ ReopenButton.MouseButton1Click:Connect(function()
     ReopenButton.Visible = false
     MainFrame.Visible = true
     TweenService:Create(MainFrame, TweenInfo.new(0.3), {
-        Position = UDim2.new(0.5, -125, 0.5, -80), -- Restores original position
-        Size = UDim2.new(0, 250, 0, 160)          -- Restores original size
+        Position = UDim2.new(0.5, 0, 0.5, 0), -- Restores original position
+        Size = UDim2.new(0, 250, 0, 160)      -- Restores original size
     }):Play()
 end)
 
