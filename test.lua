@@ -31,8 +31,8 @@ local function findClosestChair(bank)
     return closestChair
 end
 
--- Function to search for a new bank and tick 10 times on the spot
-local function searchForBankAndChair(currentZ)
+-- Function to search for a new bank and sit on one chair
+local function searchForBankAndSit(currentZ)
     for _, template in pairs({"MediumTownTemplate", "SmallTownTemplate", "LargeTownTemplate"}) do
         local town = workspace.Towns:FindFirstChild(template)
         local bank = town and town:FindFirstChild("Buildings") and town.Buildings:FindFirstChild("Bank")
@@ -44,18 +44,15 @@ local function searchForBankAndChair(currentZ)
                 lastBankZ = bankZ -- Update the last processed bank's Z-coordinate
                 print("Found NEW bank at Z:", bankZ)
 
-                -- Tick 10 times on the spot and attempt to sit on chairs
-                for i = 1, teleportCount do
-                    local chair = findClosestChair(bank)
-                    if chair then
-                        print("Attempt " .. i .. ": Sitting on chair near bank:", bank.Name)
-                        visitedChairs[chair] = true -- Mark chair as visited
-                        rootPart.CFrame = chair:GetPivot()
-                        chair.Seat:Sit(character:WaitForChild("Humanoid"))
-                        wait(delayTime) -- Delay between chair attempts
-                    else
-                        print("No unvisited chairs found during attempt:", i)
-                    end
+                -- Sit on one chair and stop further attempts
+                local chair = findClosestChair(bank)
+                if chair then
+                    print("Sitting on the chair near bank:", bank.Name)
+                    visitedChairs[chair] = true -- Mark chair as visited
+                    rootPart.CFrame = chair:GetPivot()
+                    chair.Seat:Sit(character:WaitForChild("Humanoid"))
+                else
+                    print("No unvisited chairs found near bank:", bank.Name)
                 end
                 return true -- Successfully found and processed a new bank
             else
@@ -78,7 +75,7 @@ local function moveToNextBank()
         tween.Completed:Wait() -- Wait for each tween to complete
 
         -- Check for a new bank at this position
-        if searchForBankAndChair(currentZ) then
+        if searchForBankAndSit(currentZ) then
             return -- Stop if a new bank is found and processed
         end
         print("Continuing to search for a new bank...")
@@ -86,5 +83,5 @@ local function moveToNextBank()
     warn("Reached -49k Z position but no new banks were found.")
 end
 
--- Execute the function to move forward and process banks
+-- Execute the function to move forward and sit on one chair at a new bank
 moveToNextBank()
