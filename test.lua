@@ -13,8 +13,6 @@ end)
 
 local visitedChairs = {} -- Tracks visited chairs by their unique name
 local lastSittingZ = nil -- Stores the Z-coordinate of the last sitting location
-local teleportCount = 10 -- Maximum attempts to find nearby chairs
-local delayTime = 0.1 -- Delay between chair attempts
 
 -- Function to find the closest unvisited chair and ensure distance requirements
 local function findClosestChair()
@@ -53,7 +51,7 @@ local function moveAndSit()
             lastSittingZ = chair.Seat.Position.Z -- Save the Z-coordinate of the sitting location
             rootPart.CFrame = chair:GetPivot()
             chair.Seat:Sit(character:WaitForChild("Humanoid"))
-            return -- Stop further execution after sitting down
+            return -- Stop execution immediately after sitting on the first chair
         end
     end
     warn("Reached -49k Z position but no valid chairs were found.")
