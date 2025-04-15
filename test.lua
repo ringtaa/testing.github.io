@@ -1,134 +1,61 @@
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local Workspace = game:GetService("Workspace")
-local TweenService = game:GetService("TweenService")
-
-local player = Players.LocalPlayer
+local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
-local humanoid = character:WaitForChild("Humanoid")
-local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-local remote = ReplicatedStorage.Packages.RemotePromise.Remotes.C_ActivateObject
+local rootPart = character:WaitForChild("HumanoidRootPart")
 
--- Bond collection variables
-local maxDistance = 500
-local collectDistance = 10
-local walkDelay = 0.1
-local collectingBonds = true
-local teleportPosition = Vector3.new(57, 3, -9000)
-local teleportCount = 10
-local delayTime = 0.1
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
 
--- Function to get the nearest bond
-local function GetNearestBond()
-    local closestBond = nil
-    local closestDistance = math.huge
-    for _, bond in pairs(Workspace.RuntimeItems:GetChildren()) do
-        if bond:IsA("Model") and bond.Name:match("Bond") then
-            local distance = (humanoidRootPart.Position - bond:GetModelCFrame().Position).Magnitude
-            if distance < closestDistance then
-                closestBond = bond
-                closestDistance = distance
+RunService.Stepped:Connect(function()
+    for _, part in pairs(character:GetDescendants()) do
+        if part:IsA("BasePart") then part.CanCollide = false end
+    end
+end)
+
+local visitedBanks = {}
+
+-- Function to find the closest chair near the current bank
+local function findClosestChair(bank)
+    local closestChair, closestDistance = nil, math.huge
+    for _, chair in pairs(workspace.RuntimeItems:GetDescendants()) do
+        if chair.Name == "Chair" and chair:FindFirstChild("Seat") then
+            local dist = (bank.PrimaryPart.Position - chair.Seat.Position).Magnitude
+            if dist < closestDistance then
+                closestChair, closestDistance = chair, dist
             end
         end
     end
-    return closestBond, closestDistance
+    return closestChair
 end
 
--- Function to collect bonds infinitely
-local function CollectBonds()
-    while collectingBonds do
-        local bond, distance = GetNearestBond()
-        if bond then
-            if distance <= collectDistance then
-                remote:FireServer(bond) -- Collect bond if close enough
-            elseif distance <= maxDistance then
-                humanoid:MoveTo(bond:GetModelCFrame().Position) -- Move closer to bond
-                humanoid.MoveToFinished:Wait() -- Wait for completion
-                remote:FireServer(bond) -- Collect after moving closer
-                task.wait(walkDelay)
-            end
-        end
-        task.wait(0.1) -- Avoid rapid iteration
-    end
-end
+-- Function to move to the next bank
+local function moveToNextBank()
+    for z = 30000, -49032.99, -2000 do
+        print("Tweening to Z:", z) -- Debugging message
+        local tween = TweenService:Create(rootPart, TweenInfo.new(0.5, Enum.EasingStyle.Linear), {CFrame = CFrame.new(57, 3, z)})
+        tween:Play()
+        tween.Completed:Wait() -- Wait for the tween to complete before searching
 
--- Function to enable noclip mode
-local function enableNoclip()
-    RunService.Stepped:Connect(function()
-        for _, part in pairs(character:GetDescendants()) do
-            if part:IsA("BasePart") then
-                part.CanCollide = false
-            end
-        end
-    end)
-    print("Noclip mode enabled.")
-end
+        for _, template in pairs({"MediumTownTemplate", "SmallTownTemplate", "LargeTownTemplate"}) do
+            local town = workspace.Towns:FindFirstChild(template)
+            local bank = town and town:FindFirstChild("Buildings") and town.Buildings:FindFirstChild("Bank")
+            if bank and bank.PrimaryPart and not visitedBanks[bank] then
+                visitedBanks[bank] = true
 
--- Function to teleport and handle Vampire Castle logic
-local function HandleVampireCastle()
-    for i = 1, teleportCount do
-        humanoidRootPart.CFrame = CFrame.new(teleportPosition)
-        wait(delayTime)
-    end
-
-    local vampireCastle = Workspace:FindFirstChild("VampireCastle")
-    if vampireCastle and vampireCastle.PrimaryPart then
-        print("VampireCastle at Z:", vampireCastle.PrimaryPart.Position.Z)
-
-        local closestGun
-        for _, item in pairs(Workspace.RuntimeItems:GetDescendants()) do
-            if item:IsA("Model") and item.Name == "MaximGun" then
-                local dist = (item.PrimaryPart.Position - vampireCastle.PrimaryPart.Position).Magnitude
-                if dist <= 500 then
-                    closestGun = item
-                    break
+                -- Find the closest chair near the bank
+                local chair = findClosestChair(bank)
+                if chair then
+                    print("Found chair near bank:", bank.Name)
+                    rootPart.CFrame = chair:GetPivot()
+                    chair.Seat:Sit(character:WaitForChild("Humanoid"))
+                    return -- Stop after successfully finding and sitting on a chair
+                else
+                    print("No chairs found near bank:", bank.Name)
                 end
             end
         end
-
-        if closestGun then
-            local seat = closestGun:FindFirstChild("VehicleSeat")
-            if seat then
-                character:PivotTo(seat.CFrame)
-                seat:Sit(humanoid)
-                print("Seated on MaximGun.")
-                task.wait(2) -- Wait 2 seconds
-                humanoid:ChangeState(Enum.HumanoidStateType.Jumping) -- Jump after sitting
-                enableNoclip() -- Enable noclip
-            else
-                warn("No VehicleSeat on MaximGun.")
-            end
-        else
-            local foundChair = nil
-            for _, chair in pairs(Workspace.RuntimeItems:GetDescendants()) do
-                if chair.Name == "Chair" then
-                    local seat = chair:FindFirstChild("Seat")
-                    if seat and seat.Position.Z >= -9500 and seat.Position.Z <= -9000 then
-                        foundChair = seat
-                        break
-                    end
-                end
-            end
-
-            if foundChair then
-                character:PivotTo(foundChair.CFrame)
-                foundChair:Sit(humanoid)
-                print("Seated on Chair at Z:", foundChair.Position.Z)
-                task.wait(2) -- Wait 2 seconds
-                humanoid:ChangeState(Enum.HumanoidStateType.Jumping) -- Jump after sitting
-                enableNoclip() -- Enable noclip
-            else
-                warn("No VampireCastle, MaximGun, or Chair found.")
-            end
-        end
-    else
-        warn("VampireCastle missing or invalid PrimaryPart.")
     end
+    warn("No more banks or chairs to visit.")
 end
 
--- Start infinite bond collection in a separate thread
-spawn(CollectBonds)
-
--- Call Vampire Castle handler
-HandleVampireCastle()
+-- Execute the function to move to the next bank and chair
+moveToNextBank()
