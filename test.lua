@@ -28,20 +28,8 @@ local function findClosestChair(bank)
     return closestChair
 end
 
--- Function to move to the next bank
-local function moveToNextBank()
-    local startTime = tick() -- Record the start time
-    local currentZ = rootPart.Position.Z -- Track the current Z position
-
-    print("Tweening for at least 5 seconds...") -- Debugging message
-    repeat
-        currentZ = currentZ - 1500 -- Incrementally move 1500 blocks farther along the Z-axis
-        local tween = TweenService:Create(rootPart, TweenInfo.new(1, Enum.EasingStyle.Linear), {CFrame = CFrame.new(57, 3, currentZ)})
-        tween:Play()
-        tween.Completed:Wait() -- Wait for each tween to complete
-    until (tick() - startTime) >= 5 -- Ensure minimum 5 seconds of tweening
-
-    -- Search for banks and chairs after completing the required tweening
+-- Function to search for banks and chairs
+local function searchForBankAndChair()
     for _, template in pairs({"MediumTownTemplate", "SmallTownTemplate", "LargeTownTemplate"}) do
         local town = workspace.Towns:FindFirstChild(template)
         local bank = town and town:FindFirstChild("Buildings") and town.Buildings:FindFirstChild("Bank")
@@ -55,13 +43,32 @@ local function moveToNextBank()
                 visitedChairs[chair] = true -- Mark chair as visited
                 rootPart.CFrame = chair:GetPivot()
                 chair.Seat:Sit(character:WaitForChild("Humanoid"))
-                return -- Stop after successfully finding and sitting on a chair
+                return true -- Found a bank and chair
             else
                 print("No unvisited chairs found near bank:", bank.Name)
             end
         end
     end
-    warn("No more banks or chairs to visit.")
+    return false -- No new banks or chairs found
+end
+
+-- Function to move to the next bank with extended tweening if necessary
+local function moveToNextBank()
+    local currentZ = rootPart.Position.Z -- Start from current Z position
+    print("Tweening to find a new bank...") -- Debugging message
+
+    while currentZ > -49000 do -- Keep tweening until reaching -49k if no new bank is found
+        currentZ = currentZ - 2000 -- Move 2000 blocks farther along the Z-axis
+        local tween = TweenService:Create(rootPart, TweenInfo.new(0.5, Enum.EasingStyle.Linear), {CFrame = CFrame.new(57, 3, currentZ)})
+        tween:Play()
+        tween.Completed:Wait() -- Wait for each tween to complete
+
+        -- Try to find a bank and chair after each movement
+        if searchForBankAndChair() then
+            return -- Stop if a new bank and chair are found
+        end
+    end
+    warn("Reached -49k Z position but no new banks or chairs were found.")
 end
 
 -- Execute the function to move to the next bank and chair
