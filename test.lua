@@ -11,13 +11,13 @@ RunService.Stepped:Connect(function()
     end
 end)
 
-local visitedBanks = {}
-local visitedChairs = {}
-local lastBankZ = nil -- Track the Z-coordinate of the last processed bank
-local teleportCount = 10 -- Maximum attempts to find nearby chairs
-local delayTime = 0.1 -- Delay between chair attempts
+local visitedBanks = {} -- List of all visited banks
+local visitedChairs = {} -- List of all visited chairs
+local lastProcessedZ = nil -- Keep track of the Z-coordinate of the last processed bank
+local teleportCount = 10 -- Number of ticks to try sitting on chairs
+local delayTime = 0.1 -- Delay between ticks
 
--- Function to find the closest unvisited chair near the current bank
+-- Function to find the closest unvisited chair near a bank
 local function findClosestChair(bank)
     local closestChair, closestDistance = nil, math.huge
     for _, chair in pairs(workspace.RuntimeItems:GetDescendants()) do
@@ -31,57 +31,62 @@ local function findClosestChair(bank)
     return closestChair
 end
 
--- Function to search for a new bank and sit on one chair
-local function searchForBankAndSit(currentZ)
+-- Function to find a new bank, ensuring it's 5000 blocks away from the last processed Z
+local function findNewBank(currentZ)
     for _, template in pairs({"MediumTownTemplate", "SmallTownTemplate", "LargeTownTemplate"}) do
         local town = workspace.Towns:FindFirstChild(template)
         local bank = town and town:FindFirstChild("Buildings") and town.Buildings:FindFirstChild("Bank")
         if bank and bank.PrimaryPart and not visitedBanks[bank] then
             local bankZ = bank.PrimaryPart.Position.Z
-            -- Ensure the bank is at least 5000 blocks away from the last processed bank
-            if not lastBankZ or math.abs(bankZ - lastBankZ) >= 5000 then
-                visitedBanks[bank] = true
-                lastBankZ = bankZ -- Update the last processed bank's Z-coordinate
-                print("Found NEW bank at Z:", bankZ)
-
-                -- Sit on one chair and stop further attempts
-                local chair = findClosestChair(bank)
-                if chair then
-                    print("Sitting on the chair near bank:", bank.Name)
-                    visitedChairs[chair] = true -- Mark chair as visited
-                    rootPart.CFrame = chair:GetPivot()
-                    chair.Seat:Sit(character:WaitForChild("Humanoid"))
-                else
-                    print("No unvisited chairs found near bank:", bank.Name)
-                end
-                return true -- Successfully found and processed a new bank
-            else
-                print("Bank at Z:", bankZ, "is too close to the last processed bank. Skipping.")
+            -- Ensure the bank is at least 5000 blocks farther along the Z-axis
+            if not lastProcessedZ or math.abs(bankZ - lastProcessedZ) >= 5000 then
+                visitedBanks[bank] = true -- Mark the bank as visited
+                lastProcessedZ = bankZ -- Update the last processed Z-coordinate
+                return bank -- Return the new bank
             end
         end
     end
-    return false -- No new banks found
+    return nil -- No new bank found
 end
 
--- Function to move forward until a NEW bank is found
+-- Function to tick on the spot at a new bank and sit on one chair
+local function processNewBank(bank)
+    print("Processing new bank at Z:", bank.PrimaryPart.Position.Z)
+    for i = 1, teleportCount do
+        local chair = findClosestChair(bank)
+        if chair then
+            print("Attempting to sit on chair near bank:", bank.Name)
+            visitedChairs[chair] = true -- Mark the chair as visited
+            rootPart.CFrame = chair:GetPivot()
+            chair.Seat:Sit(character:WaitForChild("Humanoid"))
+            return -- Stop after sitting on one chair
+        else
+            print("No unvisited chairs found near bank during attempt:", i)
+            wait(delayTime) -- Wait before the next tick
+        end
+    end
+end
+
+-- Function to move forward and find a new bank
 local function moveToNextBank()
     local currentZ = rootPart.Position.Z
-    print("Attempting to find a new bank...")
+    print("Searching for a new bank...")
 
     while currentZ > -49000 do -- Keep moving forward until reaching -49k
-        currentZ = currentZ - 2000 -- Move 2000 blocks farther along the Z-axis
+        currentZ = currentZ - 2000 -- Incrementally move 2000 blocks forward
         local tween = TweenService:Create(rootPart, TweenInfo.new(0.5, Enum.EasingStyle.Linear), {CFrame = CFrame.new(57, 3, currentZ)})
         tween:Play()
         tween.Completed:Wait() -- Wait for each tween to complete
 
-        -- Check for a new bank at this position
-        if searchForBankAndSit(currentZ) then
-            return -- Stop if a new bank is found and processed
+        -- Check if a new bank is found
+        local newBank = findNewBank(currentZ)
+        if newBank then
+            processNewBank(newBank) -- Process the new bank and its chairs
+            return -- Stop further movement
         end
-        print("Continuing to search for a new bank...")
     end
-    warn("Reached -49k Z position but no new banks were found.")
+    warn("No new banks found before reaching -49k.")
 end
 
--- Execute the function to move forward and sit on one chair at a new bank
+-- Execute the function to search for and process a new bank
 moveToNextBank()
