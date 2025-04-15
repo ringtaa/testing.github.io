@@ -15,7 +15,6 @@ local maxDistance = 500
 local collectDistance = 10
 local walkDelay = 0.1
 local collectingBonds = true
-local skippedBonds = {}
 
 -- Vampire Castle variables
 local teleportPosition = Vector3.new(57, 3, -9000)
@@ -28,7 +27,7 @@ local function GetNearestBond()
     local closestDistance = math.huge
 
     for _, bond in pairs(Workspace.RuntimeItems:GetChildren()) do
-        if bond:IsA("Model") and bond.Name:match("Bond") and not skippedBonds[bond] then
+        if bond:IsA("Model") and bond.Name:match("Bond") then
             local distance = (humanoidRootPart.Position - bond:GetModelCFrame().Position).Magnitude
             if distance < closestDistance then
                 closestBond = bond
@@ -40,48 +39,28 @@ local function GetNearestBond()
     return closestBond, closestDistance
 end
 
--- Function to collect bonds
+-- Function to collect bonds infinitely
 local function CollectBonds()
     while collectingBonds do
         local bond, distance = GetNearestBond()
-
         if bond then
             if distance <= collectDistance then
-                remote:FireServer(bond)
+                remote:FireServer(bond) -- Collect bond if close enough
             elseif distance <= maxDistance then
-                humanoid:MoveTo(bond:GetModelCFrame().Position)
-
-                local reached = false
-                local connection
-                connection = humanoid.MoveToFinished:Connect(function(success)
-                    reached = success
-                end)
-
-                -- Timeout after 3 seconds
-                local timeout = 3
-                local startTime = tick()
-                repeat task.wait(0.1) until reached or (tick() - startTime > timeout)
-
-                connection:Disconnect()
-
-                if reached then
-                    remote:FireServer(bond)
-                else
-                    skippedBonds[bond] = true
-                    warn("Skipped unreachable bond:", bond:GetFullName())
-                end
-
+                humanoid:MoveTo(bond:GetModelCFrame().Position) -- Move closer to bond
+                humanoid.MoveToFinished:Wait() -- Wait for completion
+                remote:FireServer(bond) -- Collect after moving closer
                 task.wait(walkDelay)
             end
         else
-            print("No valid bonds detected.")
+            print("No bonds detected.")
         end
 
-        task.wait(0.1)
+        task.wait(0.1) -- Avoid rapid iteration
     end
 end
 
--- Enable noclip
+-- Function to enable noclip mode
 local function enableNoclip()
     RunService.Stepped:Connect(function()
         for _, part in pairs(character:GetDescendants()) do
@@ -94,7 +73,7 @@ local function enableNoclip()
     print("Noclip mode enabled.")
 end
 
--- Handle Vampire Castle logic
+-- Function to teleport and handle Vampire Castle logic
 local function HandleVampireCastle()
     for i = 1, teleportCount do
         humanoidRootPart.CFrame = CFrame.new(teleportPosition)
@@ -122,9 +101,9 @@ local function HandleVampireCastle()
                 character:PivotTo(seat.CFrame)
                 seat:Sit(humanoid)
                 print("Seated on MaximGun.")
-                task.wait(2)
-                humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-                enableNoclip()
+                task.wait(2) -- Wait 2 seconds
+                humanoid:ChangeState(Enum.HumanoidStateType.Jumping) -- Jump after sitting
+                enableNoclip() -- Enable noclip
             else
                 warn("No VehicleSeat on MaximGun.")
             end
@@ -144,9 +123,9 @@ local function HandleVampireCastle()
                 character:PivotTo(foundChair.CFrame)
                 foundChair:Sit(humanoid)
                 print("Seated on Chair at Z:", foundChair.Position.Z)
-                task.wait(2)
-                humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-                enableNoclip()
+                task.wait(2) -- Wait 2 seconds
+                humanoid:ChangeState(Enum.HumanoidStateType.Jumping) -- Jump after sitting
+                enableNoclip() -- Enable noclip
             else
                 warn("No VampireCastle, MaximGun, or Chair found.")
             end
@@ -156,8 +135,8 @@ local function HandleVampireCastle()
     end
 end
 
--- Start bond collection in a separate thread
-task.spawn(CollectBonds)
+-- Start infinite bond collection in a separate thread
+spawn(CollectBonds)
 
 -- Call Vampire Castle handler
 HandleVampireCastle()
