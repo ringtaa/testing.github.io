@@ -11,7 +11,7 @@ local Theme = {
 -- Main UI
 local ScreenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 local MainFrame = Instance.new("Frame", ScreenGui)
-MainFrame.Size = UDim2.new(0, 250, 0, 300) -- Tall box for a ladder layout
+MainFrame.Size = UDim2.new(0, 250, 0, 200) -- Reduced height for compact design
 MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
 MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 MainFrame.BackgroundColor3 = Theme.Background
@@ -82,14 +82,14 @@ ReopenButton.MouseButton1Click:Connect(function()
     MainFrame.Visible = true
     TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
         Position = UDim2.new(0.5, 0, 0.5, 0), -- Restores original position
-        Size = UDim2.new(0, 250, 0, 300)      -- Restores full ladder size
+        Size = UDim2.new(0, 250, 0, 200)      -- Restores compact size
     }):Play()
 end)
 
 -- Button Template
 local function CreateButton(text, callback, position)
     local Button = Instance.new("TextButton", MainFrame)
-    Button.Text, Button.Size, Button.Position = text, UDim2.new(0.8, 0, 0.15, 0), position -- Centered vertically
+    Button.Text, Button.Size, Button.Position = text, UDim2.new(0.8, 0, 0.15, 0), position -- Adjusted for compact ladder
     Button.BackgroundColor3, Button.TextColor3 = Theme.Button, Theme.Text
     Instance.new("UICorner", Button).CornerRadius = UDim.new(0, 6)
 
@@ -105,7 +105,7 @@ local function CreateButton(text, callback, position)
     Button.MouseButton1Click:Connect(callback)
 end
 
--- Buttons for Functionality (True Ladder Style)
+-- Buttons for Functionality (Compact Ladder Layout)
 CreateButton("TP to Train", function()
     loadstring(game:HttpGet('https://raw.githubusercontent.com/ringtaa/train.github.io/refs/heads/main/train.lua'))()
 end, UDim2.new(0.1, 0, 0.2, 0))
