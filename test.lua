@@ -1,87 +1,48 @@
-local TweenService, UIS = game:GetService("TweenService"), game:GetService("UserInputService")
-local player = game:GetService("Players").LocalPlayer
-
--- Theme Setup
-local Theme = {
-    Background = Color3.fromRGB(15, 15, 15),
-    Button = Color3.fromRGB(30, 30, 30),
-    Text = Color3.fromRGB(255, 255, 255),
-    Stroke = Color3.fromRGB(60, 60, 60),
-    TabActive = Color3.fromRGB(35, 35, 35),
-    TabInactive = Color3.fromRGB(25, 25, 25)
-}
-
--- Main UI
+local player = game.Players.LocalPlayer
 local ScreenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
-local MainFrame = Instance.new("Frame", ScreenGui)
-MainFrame.Size, MainFrame.Position, MainFrame.BackgroundColor3 = UDim2.new(0, 250, 0, 150), UDim2.new(0.5, -125, 0.5, -75), Theme.Background
-MainFrame.AnchorPoint = Vector2.new(0.5, 0.5) -- Centers UI
 
-Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 8)
-local UIStroke = Instance.new("UIStroke", MainFrame)
-UIStroke.Color, UIStroke.Thickness = Theme.Stroke, 1.5
+-- Main Frame
+local MainFrame = Instance.new("Frame", ScreenGui)
+MainFrame.Size = UDim2.new(0, 300, 0, 150)
+MainFrame.Position = UDim2.new(0.5, -150, 0.5, -75)
+MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+
+-- UI Styling
+local UICorner = Instance.new("UICorner", MainFrame)
+UICorner.CornerRadius = UDim.new(0, 8)
 
 local Title = Instance.new("TextLabel", MainFrame)
-Title.Text, Title.Size, Title.Position, Title.TextColor3, Title.Font, Title.TextSize = "Ringta's Dead Rails", UDim2.new(1, -40, 0, 30), UDim2.new(0, 15, 0, 5), Theme.Text, Enum.Font.GothamBold, 18
+Title.Text = "Sterling TP Script"
+Title.Size = UDim2.new(1, -20, 0, 30)
+Title.Position = UDim2.new(0, 10, 0, 10)
+Title.BackgroundTransparency = 1
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 16
 
-local Subtitle = Instance.new("TextLabel", MainFrame)
-Subtitle.Text, Subtitle.Size, Subtitle.Position, Subtitle.TextColor3, Subtitle.Font, Subtitle.TextSize, Subtitle.TextTransparency = "v1.0 | Gui", UDim2.new(1, -40, 0, 15), UDim2.new(0, 15, 0, 30), Theme.Text, Enum.Font.Gotham, 12, 0.5
+-- Button
+local Button = Instance.new("TextButton", MainFrame)
+Button.Text = "TP to Sterling"
+Button.Size = UDim2.new(0.8, 0, 0.3, 0)
+Button.Position = UDim2.new(0.1, 0, 0.5, 0)
+Button.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+Button.Font = Enum.Font.GothamMedium
+Button.TextSize = 14
 
--- Buttons for Close and Minimize
-local CloseButton = Instance.new("TextButton", MainFrame)
-CloseButton.Text, CloseButton.Size, CloseButton.Position, CloseButton.BackgroundColor3, CloseButton.TextColor3 = "×", UDim2.new(0, 20, 0, 20), UDim2.new(1, -25, 0, 5), Theme.Button, Theme.Text
+local ButtonCorner = Instance.new("UICorner", Button)
+ButtonCorner.CornerRadius = UDim.new(0, 6)
 
-CloseButton.MouseButton1Click:Connect(function()
-    MainFrame.Visible = false
+-- Button Hover Effects
+Button.MouseEnter:Connect(function()
+    Button.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+end)
+Button.MouseLeave:Connect(function()
+    Button.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 end)
 
-local MinimizeButton = Instance.new("TextButton", MainFrame)
-MinimizeButton.Text, MinimizeButton.Size, MinimizeButton.Position = "-", UDim2.new(0, 20, 0, 20), UDim2.new(1, -50, 0, 5)
-MinimizeButton.BackgroundColor3, MinimizeButton.TextColor3 = Theme.Button, Theme.Text
-
-local TabsContainer = Instance.new("Frame", MainFrame)
-TabsContainer.Size, TabsContainer.Position, TabsContainer.BackgroundTransparency = UDim2.new(1, -30, 0, 30), UDim2.new(0, 15, 0, 55), 1
-
--- Scrollable Containers
-local LatestContainer, OldContainer = Instance.new("ScrollingFrame", MainFrame), Instance.new("ScrollingFrame", MainFrame)
-for _, Container in ipairs({LatestContainer, OldContainer}) do
-    Container.Size, Container.Position, Container.ScrollBarThickness, Container.BackgroundTransparency = UDim2.new(1, -30, 0, 60), UDim2.new(0, 15, 0, 90), 4, 1
-end
-OldContainer.Visible = false
-
--- Tab Logic
-local LatestTab, OldTab = Instance.new("TextButton", TabsContainer), Instance.new("TextButton", TabsContainer)
-LatestTab.Text, OldTab.Text, LatestTab.Size, OldTab.Size = "Latest", "Old", UDim2.new(0.5, -5, 1, 0), UDim2.new(0.5, -5, 1, 0)
-LatestTab.MouseButton1Click:Connect(function()
-    LatestContainer.Visible, OldContainer.Visible = true, false
+-- Button Functionality
+Button.MouseButton1Click:Connect(function()
+    loadstring(game:HttpGet('https://raw.githubusercontent.com/ringtaa/sterlingnotifcation.github.io/refs/heads/main/Sterling.lua'))()
 end)
-OldTab.MouseButton1Click:Connect(function()
-    OldContainer.Visible, LatestContainer.Visible = true, false
-end)
-
--- Button Template Function
-local function CreateButton(text, callback, parent)
-    local Button = Instance.new("TextButton", parent)
-    Button.Text, Button.Size, Button.BackgroundColor3, Button.TextColor3 = text, UDim2.new(1, 0, 0, 36), Theme.Button, Theme.Text
-    local ButtonStroke = Instance.new("UIStroke", Button)
-    ButtonStroke.Color, ButtonStroke.Transparency = Theme.Stroke, 0.7
-
-    Button.MouseEnter:Connect(function()
-        TweenService:Create(ButtonStroke, TweenInfo.new(0.2), {Transparency = 0.3}):Play()
-        TweenService:Create(Button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(40, 40, 40)}):Play()
-    end)
-    Button.MouseLeave:Connect(function()
-        TweenService:Create(ButtonStroke, TweenInfo.new(0.2), {Transparency = 0.7}):Play()
-        TweenService:Create(Button, TweenInfo.new(0.2), {BackgroundColor3 = Theme.Button}):Play()
-    end)
-    Button.MouseButton1Click:Connect(function()
-        callback()
-    end)
-end
-
--- Buttons for Functionality
-CreateButton("TP to Castle", function() loadstring(game:HttpGet("https://raw.githubusercontent.com/ringtaa/castletpfast.github.io/refs/heads/main/FASTCASTLE.lua"))() end, LatestContainer)
-CreateButton("TP to End", function() loadstring(game:HttpGet("https://raw.githubusercontent.com/gumanba/Scripts/refs/heads/main/DeadRails"))() end, LatestContainer)
-CreateButton("TP to Fort", function() loadstring(game:HttpGet("https://raw.githubusercontent.com/ringtaa/Tpfort.github.io/refs/heads/main/Tpfort.lua"))() end, LatestContainer)
-CreateButton("AFK AutoFarm Bond", function() _G['EndGameOnlyMode'] = true; loadstring(game:HttpGet("https://raw.githubusercontent.com/NebulaHubOfc/Public/refs/heads/main/Loader.lua"))() end, OldContainer)
-CreateButton("AFK AutoFarm Bond (No Key)", function() loadstring(game:HttpGet("https://raw.githubusercontent.com/TwoGunVolley/Earlyfixed/refs/heads/main/Protected_1408189441085576.txt"))() end, OldContainer)
