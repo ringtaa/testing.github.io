@@ -9,11 +9,11 @@ spawn(function()
 
             for _, v in pairs(runtimeItems:GetChildren()) do
                 if v.Name == "Bond" or v.Name == "Bonds" then
-                    sssss:FireServer(v) -- Fire the remote event for bond collection
+                    sssss:FireServer(v) -- Attempt to collect the bond
                 end
             end
         end
-        task.wait()
+        task.wait(0.1) -- Add slight delay for performance
     end
 end)
 
