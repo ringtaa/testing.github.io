@@ -11,10 +11,18 @@ local Theme = {
 -- Main UI
 local ScreenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 local MainFrame = Instance.new("Frame", ScreenGui)
-MainFrame.Size = UDim2.new(0, 250, 0, 185) -- Slightly increased height
+MainFrame.Size = UDim2.new(0, 350, 0, 230) -- Updated length
 MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
 MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 MainFrame.BackgroundColor3 = Theme.Background
+
+-- Rainbow Outline for Main Frame
+local frameOutline = Instance.new("UIStroke")
+frameOutline.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+frameOutline.Color = Color3.fromRGB(255, 0, 0) -- Red outline
+frameOutline.Thickness = 3
+frameOutline.Parent = MainFrame
+
 Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 8)
 
 local Title = Instance.new("TextLabel", MainFrame)
@@ -27,20 +35,30 @@ MinimizeButton.Text, MinimizeButton.Size, MinimizeButton.Position = "-", UDim2.n
 MinimizeButton.BackgroundColor3, MinimizeButton.TextColor3 = Theme.Button, Theme.Text
 Instance.new("UICorner", MinimizeButton).CornerRadius = UDim.new(0, 6)
 
--- Reopen Button (Hidden When UI is Active)
+-- Reopen Button (Hidden When UI is Minimized)
 local ReopenButton = Instance.new("TextButton", ScreenGui)
-ReopenButton.Text, ReopenButton.Size, ReopenButton.Position = "Open RINGTA SCRIPTS", UDim2.new(0, 150, 0, 30), UDim2.new(0.5, 0, 0)
+ReopenButton.Text, ReopenButton.Size, ReopenButton.Position = "Open RINGTA SCRIPTS", UDim2.new(0, 150, 0, 30), UDim2.new(0.5, 0, 0, -22)
 ReopenButton.AnchorPoint, ReopenButton.Visible = Vector2.new(0.5, 0), false
 ReopenButton.BackgroundColor3, ReopenButton.TextColor3 = Theme.Button, Theme.Text
 Instance.new("UICorner", ReopenButton).CornerRadius = UDim.new(0, 6)
 
 -- Dragging State
 local isMinimized = false
-local dragging, dragStart, startPos
+local dragging, dragInput, dragStart, startPos
 
--- Dragging Logic
-MainFrame.InputBegan:Connect(function(input)
-    if not isMinimized and input.UserInputType == Enum.UserInputType.MouseButton1 then
+-- Improved Drag Functionality (Supports Mouse and Touch)
+local function updateInput(input)
+    local delta = input.Position - dragStart
+    MainFrame.Position = UDim2.new(
+        startPos.X.Scale,
+        startPos.X.Offset + delta.X,
+        startPos.Y.Scale,
+        startPos.Y.Offset + delta.Y
+    )
+end
+
+Title.InputBegan:Connect(function(input)
+    if not isMinimized and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
         dragging = true
         dragStart = input.Position
         startPos = MainFrame.Position
@@ -53,13 +71,15 @@ MainFrame.InputBegan:Connect(function(input)
     end
 end)
 
-MainFrame.InputChanged:Connect(function(input)
-    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-        local delta = input.Position - dragStart
-        MainFrame.Position = UDim2.new(
-            startPos.X.Scale, startPos.X.Offset + delta.X,
-            startPos.Y.Scale, startPos.Y.Offset + delta.Y
-        )
+Title.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
+
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        updateInput(input)
     end
 end)
 
@@ -67,7 +87,7 @@ end)
 MinimizeButton.MouseButton1Click:Connect(function()
     isMinimized = true -- Disable dragging when minimized
     TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
-        Position = UDim2.new(0.5, 0, -0.1, 0), -- Moves higher in top-middle
+        Position = UDim2.new(0.5, 0, -0.7, 0), -- MUCH higher top-middle position
         Size = UDim2.new(0, 250, 0, 50)        -- Shrinks size
     }):Play()
     wait(0.3)
@@ -81,15 +101,15 @@ ReopenButton.MouseButton1Click:Connect(function()
     ReopenButton.Visible = false
     MainFrame.Visible = true
     TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
-        Position = UDim2.new(0.5, 0, 0.5, 0), -- Restores original position
-        Size = UDim2.new(0, 250, 0, 170)      -- Restored increased height
+        Position = UDim2.new(0.5, 0, 0, 170), -- Restores original position
+        Size = UDim2.new(0, 350, 0, 230)      -- Updated length
     }):Play()
 end)
 
 -- Button Template
 local function CreateButton(text, callback, position)
     local Button = Instance.new("TextButton", MainFrame)
-    Button.Text, Button.Size, Button.Position = text, UDim2.new(0.8, 0, 0.12, 0), position -- Slightly more space for ease
+    Button.Text, Button.Size, Button.Position = text, UDim2.new(0.8, 0, 0.12, 0), position
     Button.BackgroundColor3, Button.TextColor3 = Theme.Button, Theme.Text
     Instance.new("UICorner", Button).CornerRadius = UDim.new(0, 6)
 
@@ -104,7 +124,7 @@ local function CreateButton(text, callback, position)
     Button.MouseButton1Click:Connect(callback)
 end
 
--- Buttons for Functionality (Adjusted Ladder Layout)
+-- Buttons for Functionality
 CreateButton("TP to Train", function()
     loadstring(game:HttpGet('https://raw.githubusercontent.com/ringtaa/train.github.io/refs/heads/main/train.lua'))()
 end, UDim2.new(0.1, 0, 0.2, 0))
