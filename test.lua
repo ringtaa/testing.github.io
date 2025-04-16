@@ -105,7 +105,7 @@ ReopenButton.MouseButton1Click:Connect(function()
     MainFrame.Visible = true
     TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
         Position = UDim2.new(0.5, 0, 0, 170), -- Restores original position
-        Size = UDim2.new(0, 250, 0, 185)      -- Restores original size
+        Size = UDim2.new(0, 350, 0, 230)      -- Restores original size
     }):Play()
 end)
 
