@@ -1,18 +1,27 @@
-bond = true
---- code for ringta || idk why
+local Workspace = game:GetService("Workspace")
+local Players = game:GetService("Players")
 
-spawn(function()
-    while true do
-        if bond then
-            local sssss = game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("RemotePromise"):WaitForChild("Remotes"):WaitForChild("C_ActivateObject")
-            local runtimeItems = game:GetService("Workspace"):WaitForChild("RuntimeItems")
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 
-            for _, v in pairs(runtimeItems:GetChildren()) do
-                if v.Name == "Bond" or v.Name == "Bonds" then
-                    sssss:FireServer(v)
-                end
-            end
+local function GetBond()
+    for _, item in pairs(Workspace.RuntimeItems:GetChildren()) do
+        if item.Name == "Bond" then
+            return item -- Return the first bond found
         end
-        task.wait()
     end
-end)
+    return nil -- Return nil if no bond is found
+end
+
+while true do
+    local bond = GetBond()
+    if bond then
+        humanoid:MoveTo(bond:GetModelCFrame().Position) -- Move to the bond's position
+        humanoid.MoveToFinished:Wait() -- Wait until the movement is completed
+    else
+        print("No bond found.")
+    end
+    task.wait(0.1) -- Add a small delay before checking again
+end
