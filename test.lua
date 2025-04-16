@@ -86,32 +86,70 @@ local function CreateButton(parent, text, callback, position)
     Button.MouseButton1Click:Connect(callback)
 end
 
--- Existing Tab for Teleports
-local TeleportTab = CreateTab("Teleports")
+-- Main Tab for Teleports
+local MainTab = CreateTab("Main")
 
-CreateButton(TeleportTab, "TP to Train", function()
+CreateButton(MainTab, "TP to Train", function()
     loadstring(game:HttpGet('https://raw.githubusercontent.com/ringtaa/train.github.io/refs/heads/main/train.lua'))()
 end, UDim2.new(0.1, 0, 0.2, 0))
 
-CreateButton(TeleportTab, "TP to Sterling", function()
+CreateButton(MainTab, "TP to Sterling", function()
     loadstring(game:HttpGet('https://raw.githubusercontent.com/ringtaa/sterlingnotifcation.github.io/refs/heads/main/Sterling.lua'))()
 end, UDim2.new(0.1, 0, 0.34, 0))
 
-CreateButton(TeleportTab, "TP to TeslaLab", function()
+CreateButton(MainTab, "TP to TeslaLab", function()
     loadstring(game:HttpGet('https://raw.githubusercontent.com/ringtaa/tptotesla.github.io/refs/heads/main/Tptotesla.lua'))()
 end, UDim2.new(0.1, 0, 0.48, 0))
 
-CreateButton(TeleportTab, "TP to Castle", function()
+CreateButton(MainTab, "TP to Castle", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/ringtaa/castletpfast.github.io/refs/heads/main/FASTCASTLE.lua"))()
 end, UDim2.new(0.1, 0, 0.62, 0))
 
-CreateButton(TeleportTab, "TP to Fort", function()
+CreateButton(MainTab, "TP to Fort", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/ringtaa/Tpfort.github.io/refs/heads/main/Tpfort.lua"))()
 end, UDim2.new(0.1, 0, 0.76, 0))
 
--- New Tab for Additional Features
-local ExtraTab = CreateTab("Bank")
+-- Other Tab for Additional Features
+local OtherTab = CreateTab("Other")
 
-CreateButton(ExtraTab, "TP to Bank", function()
+CreateButton(OtherTab, "TP to Bank", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/ringtaa/Tptobank.github.io/refs/heads/main/Banktp.lua"))()
 end, UDim2.new(0.1, 0, 0.2, 0))
+
+-- Minimize Button
+local MinimizeButton = Instance.new("TextButton", MainFrame)
+MinimizeButton.Text, MinimizeButton.Size, MinimizeButton.Position = "-", UDim2.new(0, 20, 0, 20), UDim2.new(1, -25, 0, 5)
+MinimizeButton.BackgroundColor3, MinimizeButton.TextColor3 = Theme.Button, Theme.Text
+Instance.new("UICorner", MinimizeButton).CornerRadius = UDim.new(0, 6)
+
+-- Reopen Button (Hidden When UI is Minimized)
+local ReopenButton = Instance.new("TextButton", ScreenGui)
+ReopenButton.Text, ReopenButton.Size, ReopenButton.Position = "Open RINGTA SCRIPTS", UDim2.new(0, 150, 0, 30), UDim2.new(0.5, 0, 0, -22)
+ReopenButton.AnchorPoint, ReopenButton.Visible = Vector2.new(0.5, 0), false
+ReopenButton.BackgroundColor3, ReopenButton.TextColor3 = Theme.Button, Theme.Text
+Instance.new("UICorner", ReopenButton).CornerRadius = UDim.new(0, 6)
+
+local isMinimized = false
+
+-- Minimize Functionality
+MinimizeButton.MouseButton1Click:Connect(function()
+    isMinimized = true
+    TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+        Position = UDim2.new(0.5, 0, -0.7, 0),
+        Size = UDim2.new(0, 250, 0, 50)
+    }):Play()
+    wait(0.3)
+    MainFrame.Visible = false
+    ReopenButton.Visible = true
+end)
+
+-- Reopen Functionality
+ReopenButton.MouseButton1Click:Connect(function()
+    isMinimized = false
+    ReopenButton.Visible = false
+    MainFrame.Visible = true
+    TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+        Position = UDim2.new(0.5, 0, 0.5, 0),
+        Size = UDim2.new(0, 350, 0, 230)
+    }):Play()
+end)
