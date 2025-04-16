@@ -1,48 +1,40 @@
 local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local LocalPlayer = Players.LocalPlayer
-local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-local Remotes = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Weapon"):WaitForChild("Shoot")
+local chr = Players.LocalPlayer.Character or Players.LocalPlayer.CharacterAdded:Wait()
+local timer = tick()
 
-local function getNearestNPCHead()
-    local nearestDistance = math.huge
-    local nearestHead = nil
-
-    -- Loop through RuntimeEntities for Werewolves and Vampires
-    for _, npc in pairs(workspace.RuntimeEntities:GetChildren()) do
-        if npc:IsA("Model") and npc ~= Character and (npc.Name == "Werewolf" or npc.Name == "Vampire") then
-            local head = npc:FindFirstChild("Head")
-            if head and head:IsA("BasePart") then
-                local distance = (head.Position - Character.HumanoidRootPart.Position).Magnitude
-                if distance < nearestDistance then
-                    nearestDistance = distance
-                    nearestHead = head
-                end
+repeat
+    task.wait()
+    -- Check if "FinalBasePlate" exists
+    if workspace.Baseplates:FindFirstChild("FinalBasePlate") then
+        -- Iterate through all descendants of the target base
+        for _, v in pairs(workspace.Baseplates.FinalBasePlate.OutlawBase:GetDescendants()) do
+            if v:IsA("Seat") or v:IsA("VehicleSeat") then
+                pcall(function()
+                    local timedSeat = tick()
+                    v.Disabled = false -- Enable the seat
+                    local frame = v.CFrame -- Get seat's CFrame
+                    
+                    repeat
+                        task.wait()
+                        chr:PivotTo(frame) -- Move character to seat
+                        chr.PrimaryPart.CFrame = frame -- Set character's CFrame to seat's CFrame
+                        
+                        -- Try to make the character sit
+                        if chr.Humanoid.SeatPart == nil then
+                            v:Sit(chr.Humanoid) -- Attempt to sit the humanoid
+                        elseif chr.Humanoid.SeatPart ~= nil then
+                            -- Simulate a jump if already sitting
+                            game:GetService("VirtualInputManager"):SendKeyEvent(true, "Space", false, game)
+                            task.wait()
+                            game:GetService("VirtualInputManager"):SendKeyEvent(false, "Space", false, game)
+                        end
+                    until tick() - timedSeat > 2 -- Stop after 2 seconds of attempting
+                    chr.Humanoid.Sit = false -- Reset sit state
+                end)
             end
         end
-    end
-    return nearestHead
-end
-
-while true do
-    local targetHead = getNearestNPCHead()
-    if targetHead then
-        local args = {
-            [1] = os.clock(), -- Dynamic unique value for each shot
-            [2] = Character:FindFirstChild("Revolver"), -- Ensure the revolver exists
-            [3] = CFrame.new(targetHead.Position), -- Target position
-            [4] = {}, -- Empty or additional parameters
-        }
-
-        -- Validate weapon existence before firing
-        if args[2] then
-            print("Firing at:", targetHead.Parent.Name, "Position:", targetHead.Position)
-            Remotes:FireServer(unpack(args)) -- Fire at the target
-        else
-            print("Weapon not found!")
-        end
     else
-        print("No werewolves or vampires nearby.") -- Debugging output
+        -- Teleport the character if no valid seat is found
+        chr:PivotTo(CFrame.new(-424.448975, 30, -49041))
     end
-    task.wait(0.1) -- Short delay to avoid spamming
-end
+until tick() - timer > 10 -- Stop script execution after 10 seconds
