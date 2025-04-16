@@ -1,5 +1,6 @@
 local Workspace = game:GetService("Workspace")
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 
 local player = Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
@@ -18,13 +19,19 @@ local function GetBondWithinRange(maxDistance)
     return nil -- Return nil if no bond is found within the range
 end
 
-while true do
+RunService.Heartbeat:Connect(function()
     local bond = GetBondWithinRange(500) -- Check for bonds within 500 blocks
     if bond then
-        humanoid:MoveTo(bond:GetModelCFrame().Position) -- Move to the bond's position
-        print("Walking to bond:", bond.Name, "at position:", bond:GetModelCFrame().Position) -- Debugging movement
+        local targetPosition = bond:GetModelCFrame().Position
+        local currentPosition = humanoidRootPart.Position
+        local distance = (currentPosition - targetPosition).Magnitude
+
+        -- If the humanoid isn't already moving or if it's interrupted, reinitiate movement
+        if distance > 0.5 then -- Allow slight tolerance to prevent unnecessary re-triggers
+            humanoid:MoveTo(targetPosition) -- Continuously attempt to move toward the bond
+            print("Moving to bond:", bond.Name, "at distance:", math.floor(distance)) -- Debugging movement
+        end
     else
         print("No bonds within range.") -- Debugging no bonds found
     end
-    task.wait(0.1) -- Add a small delay before checking again
-end
+end)
