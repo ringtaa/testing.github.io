@@ -1,3 +1,23 @@
+bond = true
+
+-- Code for handling bond collection
+spawn(function()
+    while true do
+        if bond then
+            local sssss = game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("RemotePromise"):WaitForChild("Remotes"):WaitForChild("C_ActivateObject")
+            local runtimeItems = game:GetService("Workspace"):WaitForChild("RuntimeItems")
+
+            for _, v in pairs(runtimeItems:GetChildren()) do
+                if v.Name == "Bond" or v.Name == "Bonds" then
+                    sssss:FireServer(v) -- Fire the remote event for bond collection
+                end
+            end
+        end
+        task.wait()
+    end
+end)
+
+-- Code for handling bond movement
 local Workspace = game:GetService("Workspace")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
