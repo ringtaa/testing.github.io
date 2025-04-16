@@ -24,19 +24,23 @@ local function getNearestNPCHead()
     return nearestHead
 end
 
--- Continuous targeting loop
 while true do
     local targetHead = getNearestNPCHead()
     if targetHead then
         local args = {
-            [1] = 1743276954.200528, -- Replace with the appropriate identifier
-            [2] = Character:FindFirstChild("Revolver"),
-            [3] = CFrame.new(targetHead.Position),
-            [4] = {}
+            [1] = os.clock(), -- Dynamic unique value for each shot
+            [2] = Character:FindFirstChild("Revolver"), -- Ensure the revolver exists
+            [3] = CFrame.new(targetHead.Position), -- Target position
+            [4] = {}, -- Empty or additional parameters
         }
 
-        Remotes:FireServer(unpack(args)) -- Fire at the target
-        print("Shot fired at", targetHead.Parent.Name) -- Debugging output
+        -- Validate weapon existence before firing
+        if args[2] then
+            print("Firing at:", targetHead.Parent.Name, "Position:", targetHead.Position)
+            Remotes:FireServer(unpack(args)) -- Fire at the target
+        else
+            print("Weapon not found!")
+        end
     else
         print("No werewolves or vampires nearby.") -- Debugging output
     end
