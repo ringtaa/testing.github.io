@@ -7,31 +7,39 @@ local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
 local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 
-local function GetBondWithinRange(maxDistance)
+local function GetAllBondsWithinRange(maxDistance)
+    local bonds = {}
     for _, bond in pairs(Workspace.RuntimeItems:GetChildren()) do
         if bond:IsA("Model") and bond.Name == "Bond" then
             local distance = (humanoidRootPart.Position - bond:GetModelCFrame().Position).Magnitude
             if distance <= maxDistance then
-                return bond -- Return the first bond found within the range
+                table.insert(bonds, bond) -- Add bond to the list if within range
             end
         end
     end
-    return nil -- Return nil if no bond is found within the range
+    return bonds
+end
+
+local function MoveToBond(bond)
+    humanoid:MoveTo(bond:GetModelCFrame().Position) -- Move to the bond's position
+    while true do
+        local distance = (humanoidRootPart.Position - bond:GetModelCFrame().Position).Magnitude
+        if distance <= 2 then -- Consider the bond "reached" within a 2-block tolerance
+            print("Reached bond:", bond.Name)
+            break
+        end
+        task.wait(0.1) -- Keep checking until bond is reached
+    end
 end
 
 RunService.Heartbeat:Connect(function()
-    local bond = GetBondWithinRange(500) -- Check for bonds within 500 blocks
-    if bond then
-        local targetPosition = bond:GetModelCFrame().Position
-        local currentPosition = humanoidRootPart.Position
-        local distance = (currentPosition - targetPosition).Magnitude
-
-        -- If the humanoid isn't already moving or if it's interrupted, reinitiate movement
-        if distance > 0.5 then -- Allow slight tolerance to prevent unnecessary re-triggers
-            humanoid:MoveTo(targetPosition) -- Continuously attempt to move toward the bond
-            print("Moving to bond:", bond.Name, "at distance:", math.floor(distance)) -- Debugging movement
+    local bonds = GetAllBondsWithinRange(500) -- Get all bonds within 500 blocks
+    if #bonds > 0 then
+        for _, bond in ipairs(bonds) do
+            print("Moving to bond:", bond.Name)
+            MoveToBond(bond) -- Walk to each bond in the list
         end
     else
-        print("No bonds within range.") -- Debugging no bonds found
+        print("No bonds within range.") -- Debugging when no bonds are found
     end
 end)
