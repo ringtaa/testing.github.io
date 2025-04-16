@@ -22,9 +22,9 @@ while true do
     local bond = GetBondWithinRange(500) -- Check for bonds within 500 blocks
     if bond then
         humanoid:MoveTo(bond:GetModelCFrame().Position) -- Move to the bond's position
-        humanoid.MoveToFinished:Wait() -- Wait until the movement is completed
+        print("Walking to bond:", bond.Name, "at position:", bond:GetModelCFrame().Position) -- Debugging movement
     else
-        print("No bonds within range.") -- Debugging message for when no bonds are found
+        print("No bonds within range.") -- Debugging no bonds found
     end
     task.wait(0.1) -- Add a small delay before checking again
 end
