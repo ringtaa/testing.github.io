@@ -1,6 +1,6 @@
 bond = true
 
--- Code for handling bond collection
+-- Code for bond collection
 spawn(function()
     while true do
         if bond then
@@ -17,7 +17,7 @@ spawn(function()
     end
 end)
 
--- Code for handling bond movement
+-- Code for bond movement
 local Workspace = game:GetService("Workspace")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -30,7 +30,7 @@ local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 local function GetAllBondsWithinRange(maxDistance)
     local bonds = {}
     for _, bond in pairs(Workspace.RuntimeItems:GetChildren()) do
-        if bond:IsA("Model") and bond.Name == "Bond" then
+        if bond:IsA("Model") and (bond.Name == "Bond" or bond.Name == "Bonds") then
             local distance = (humanoidRootPart.Position - bond:GetModelCFrame().Position).Magnitude
             if distance <= maxDistance then
                 table.insert(bonds, bond) -- Add bond to the list if within range
