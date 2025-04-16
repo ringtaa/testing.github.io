@@ -1,4 +1,4 @@
-local TweenService, UIS = game:GetService("TweenService"), game:GetService("UserInputService")
+local TweenService, UIS, rs = game:GetService("TweenService"), game:GetService("UserInputService"), game:GetService("RunService")
 local player = game:GetService("Players").LocalPlayer
 
 -- Theme Setup
@@ -19,10 +19,13 @@ MainFrame.BackgroundColor3 = Theme.Background
 -- Rainbow Outline for Main Frame
 local frameOutline = Instance.new("UIStroke")
 frameOutline.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-frameOutline.Color = Color3.fromRGB(255, 0, 0) -- Red outline
 frameOutline.Thickness = 3
 frameOutline.Parent = MainFrame
-
+local hue = 0
+rs.RenderStepped:Connect(function()
+    hue = (hue + 0.005) % 1 -- Increase 0.005 to make it faster. Decrease for slower
+    frameOutline.Color = Color3.fromHSV(hue, 1, 1) -- The second value is Saturation, and the last value is Value or brightness. bro pls add me as UI Designer
+end) -- Loop
 Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 8)
 
 local Title = Instance.new("TextLabel", MainFrame)
@@ -102,7 +105,7 @@ ReopenButton.MouseButton1Click:Connect(function()
     MainFrame.Visible = true
     TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
         Position = UDim2.new(0.5, 0, 0, 170), -- Restores original position
-        Size = UDim2.new(0, 350, 0, 230)      -- Updated length
+        Size = UDim2.new(0, 250, 0, 185)      -- Restores original size
     }):Play()
 end)
 
