@@ -19,7 +19,7 @@ local loggedEntities = {}
 
 -- Function for tweening
 local function tweenTo(targetPosition, duration)
-    local tweenInfo = TweenInfo.new(duration, Enum.EasingStyle.Linear, Enum.EasingStyle.Linear)
+    local tweenInfo = TweenInfo.new(duration, Enum.EasingStyle.Linear, Enum.EasingDirection.Out) -- Corrected easing direction
     local goal = {CFrame = CFrame.new(targetPosition)}
     local tween = TweenService:Create(humanoidRootPart, tweenInfo, goal)
     tween:Play()
