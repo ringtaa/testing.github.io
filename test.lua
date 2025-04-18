@@ -15,6 +15,9 @@ local duration = 0.5
 local stopTweening = false
 local unicornFound = false
 
+-- Unique logging table
+local loggedEntities = {}
+
 -- Function for tweening
 local function tweenTo(targetPosition, duration)
     local tweenInfo = TweenInfo.new(duration, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
@@ -24,6 +27,19 @@ local function tweenTo(targetPosition, duration)
     tween.Completed:Wait()
 end
 
+-- Helper function to log unique entities
+local function logEntity(name, position)
+    local roundedX = math.floor(position.X)
+    local roundedY = math.floor(position.Y)
+    local roundedZ = math.floor(position.Z)
+    local key = name .. "_" .. roundedX .. "_" .. roundedY .. "_" .. roundedZ
+
+    if not loggedEntities[key] then
+        print(name, "found at coordinates: X =", roundedX, "Y =", roundedY, "Z =", roundedZ)
+        loggedEntities[key] = true
+    end
+end
+
 -- Step-based tweening to search for Unicorn and Horses
 for z = startZ, endZ, stepZ do
     if stopTweening then break end
@@ -31,33 +47,36 @@ for z = startZ, endZ, stepZ do
     -- Tween smoothly to the next position
     tweenTo(Vector3.new(x, y, z), duration)
 
-    -- Check for Unicorn
+    -- Check for Unicorn in RuntimeEntities
     local runtimeEntities = workspace:FindFirstChild("RuntimeEntities")
     if runtimeEntities then
         local unicorn = runtimeEntities:FindFirstChild("Unicorn")
         if unicorn and unicorn:IsA("Model") then
+            logEntity("Unicorn", unicorn.PrimaryPart.Position)
             local unicornSeat = workspace:FindFirstChild("Unicorn"):FindFirstChild("VehicleSeat")
-            print("Unicorn found at coordinates: X:", unicorn.PrimaryPart.Position.X, "Y:", unicorn.PrimaryPart.Position.Y, "Z:", unicorn.PrimaryPart.Position.Z)
-            unicornFound = true
-            stopTweening = true
-
-            -- Attempt to sit on Unicorn's seat immediately
             if unicornSeat then
+                unicornFound = true
+                stopTweening = true
+
+                -- Attempt to sit on Unicorn's seat immediately
                 tweenTo(unicornSeat.Position, duration)
                 unicornSeat:Sit(player.Character.Humanoid)
                 print("Successfully seated on Unicorn!")
+                break
             else
                 print("Unicorn has no seat. Proceeding to fallback...")
+                unicornFound = true
+                stopTweening = true
+                break
             end
-            break
         end
 
-        -- Check for Horses
+        -- Check for Horses in RuntimeEntities.Model_Horse
         local horseWorkspace = runtimeEntities:FindFirstChild("Model_Horse")
         if horseWorkspace then
             for _, horse in pairs(horseWorkspace:GetChildren()) do
                 if horse:IsA("VehicleSeat") then
-                    print("Horse found at coordinates: X:", horse.Position.X, "Y:", horse.Position.Y, "Z:", horse.Position.Z)
+                    logEntity("Horse", horse.Position)
                 end
             end
         end
