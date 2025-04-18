@@ -38,7 +38,7 @@ repeat
                                         task.wait()
                                         game:GetService("VirtualInputManager"):SendKeyEvent(false, "Space", false, game)
                                     end
-                                until tick() - timedSeat > 2 -- Stop attempting after 2 seconds
+                                until tick() - timedSeat > 8 -- Stop attempting after 8 seconds
 
                                 if chr.Humanoid.SeatPart == v then
                                     successfullySeated = true -- Mark success if seated
