@@ -19,7 +19,7 @@ local loggedEntities = {}
 
 -- Function for tweening
 local function tweenTo(targetPosition, duration)
-    local tweenInfo = TweenInfo.new(duration, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+    local tweenInfo = TweenInfo.new(duration, Enum.EasingStyle.Linear, Enum.EasingStyle.Linear)
     local goal = {CFrame = CFrame.new(targetPosition)}
     local tween = TweenService:Create(humanoidRootPart, tweenInfo, goal)
     tween:Play()
@@ -39,7 +39,7 @@ local function logEntity(name, position)
     end
 end
 
--- Step-based tweening to search for Unicorn and fallback to Horses
+-- Step-based tweening to search for Unicorn and fallback options
 for z = startZ, endZ, stepZ do
     if stopTweening then break end
 
@@ -85,6 +85,7 @@ if not unicornFound then
     print("No Unicorn found during tweening. Searching for fallback options...")
 
     local horseWorkspace = workspace:FindFirstChild("Model_Horse")
+    local chairWorkspace = workspace:FindFirstChild("RuntimeItems")
     local closestFallback = nil
     local fallbackDistance = math.huge
 
@@ -96,6 +97,22 @@ if not unicornFound then
                 if distance < fallbackDistance then
                     closestFallback = vehicleSeat
                     fallbackDistance = distance
+                end
+            end
+        end
+    end
+
+    -- Search for chairs in RuntimeItems.Chair.Seat
+    if chairWorkspace then
+        for _, chair in pairs(chairWorkspace:GetChildren()) do
+            if chair.Name == "Chair" then
+                local seat = chair:FindFirstChild("Seat")
+                if seat then
+                    local distance = (humanoidRootPart.Position - seat.Position).Magnitude
+                    if distance < fallbackDistance then
+                        closestFallback = seat
+                        fallbackDistance = distance
+                    end
                 end
             end
         end
