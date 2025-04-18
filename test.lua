@@ -3,6 +3,7 @@ local chr = plr.Character or plr.CharacterAdded:Wait()
 local timer = tick()
 
 local targetPosition = Vector3.new(-424, 30, -49041) -- Target seat position
+local successfullySeated = false
 
 repeat
     task.wait()
@@ -39,8 +40,14 @@ repeat
                                     end
                                 until tick() - timedSeat > 2 -- Stop attempting after 2 seconds
 
+                                if chr.Humanoid.SeatPart == v then
+                                    successfullySeated = true -- Mark success if seated
+                                end
+
                                 chr.Humanoid.Sit = false -- Reset sit state
                             end)
+
+                            if successfullySeated then break end -- Exit loop if seated successfully
                         end
                     end
                 end
@@ -53,7 +60,8 @@ repeat
     else
         warn("Baseplates not found in Workspace!")
     end
+until tick() - timer > 10 -- Allow the script to run for up to 10 seconds
 
-    -- Teleport the character if no valid seat is found
-    chr:PivotTo(CFrame.new(-424, 30, -49041)) -- Ensure fallback teleport to target position
-until tick() - timer > 2.7 -- Stop script execution after 2.7 seconds
+if not successfullySeated then
+    print("Failed to seat the character within the timeframe.")
+end
