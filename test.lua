@@ -24,34 +24,41 @@ local function tweenTo(targetPosition, duration)
     tween.Completed:Wait()
 end
 
--- Step-based tweening to search for the Unicorn
+-- Step-based tweening to search for Unicorn and Horses
 for z = startZ, endZ, stepZ do
     if stopTweening then break end
 
     -- Tween smoothly to the next position
     tweenTo(Vector3.new(x, y, z), duration)
 
-    -- Check for Unicorn in RuntimeEntities
+    -- Check for Unicorn
     local runtimeEntities = workspace:FindFirstChild("RuntimeEntities")
     if runtimeEntities then
         local unicorn = runtimeEntities:FindFirstChild("Unicorn")
         if unicorn and unicorn:IsA("Model") then
             local unicornSeat = workspace:FindFirstChild("Unicorn"):FindFirstChild("VehicleSeat")
-            if unicornSeat then
-                print("Unicorn found at:", unicorn.Position)
-                unicornFound = true
-                stopTweening = true
+            print("Unicorn found at coordinates: X:", unicorn.PrimaryPart.Position.X, "Y:", unicorn.PrimaryPart.Position.Y, "Z:", unicorn.PrimaryPart.Position.Z)
+            unicornFound = true
+            stopTweening = true
 
-                -- Attempt to sit on Unicorn's seat immediately
+            -- Attempt to sit on Unicorn's seat immediately
+            if unicornSeat then
                 tweenTo(unicornSeat.Position, duration)
                 unicornSeat:Sit(player.Character.Humanoid)
                 print("Successfully seated on Unicorn!")
-                break
             else
                 print("Unicorn has no seat. Proceeding to fallback...")
-                unicornFound = true
-                stopTweening = true
-                break
+            end
+            break
+        end
+
+        -- Check for Horses
+        local horseWorkspace = runtimeEntities:FindFirstChild("Model_Horse")
+        if horseWorkspace then
+            for _, horse in pairs(horseWorkspace:GetChildren()) do
+                if horse:IsA("VehicleSeat") then
+                    print("Horse found at coordinates: X:", horse.Position.X, "Y:", horse.Position.Y, "Z:", horse.Position.Z)
+                end
             end
         end
     end
