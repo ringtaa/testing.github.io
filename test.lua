@@ -82,6 +82,31 @@ for z = startZ, endZ, stepZ do
         end
     end
 
+    -- Check for Horses in Baseplates.CenterBasePlate.Animals.RuntimeEntities.Model_Horse
+    local baseplateHorseWorkspace = workspace:FindFirstChild("Baseplates")
+    if baseplateHorseWorkspace then
+        baseplateHorseWorkspace = baseplateHorseWorkspace:FindFirstChild("Baseplate")
+        if baseplateHorseWorkspace then
+            baseplateHorseWorkspace = baseplateHorseWorkspace:FindFirstChild("CenterBasePlate")
+            if baseplateHorseWorkspace then
+                baseplateHorseWorkspace = baseplateHorseWorkspace:FindFirstChild("Animals")
+                if baseplateHorseWorkspace then
+                    baseplateHorseWorkspace = baseplateHorseWorkspace:FindFirstChild("RuntimeEntities")
+                    if baseplateHorseWorkspace then
+                        baseplateHorseWorkspace = baseplateHorseWorkspace:FindFirstChild("Model_Horse")
+                        if baseplateHorseWorkspace then
+                            for _, horse in pairs(baseplateHorseWorkspace:GetChildren()) do
+                                if horse:IsA("VehicleSeat") then
+                                    logEntity("Horse", horse.Position)
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+
     -- Check for Horses in ReplicatedStorage.Assets.Entities.Animals.Horse.Animations.Model_Horse
     local replicatedHorseWorkspace = ReplicatedStorage:FindFirstChild("Assets")
     if replicatedHorseWorkspace then
@@ -125,6 +150,35 @@ if not unicornFound then
                 if distance < fallbackDistance then
                     closestFallback = vehicleSeat
                     fallbackDistance = distance
+                end
+            end
+        end
+    end
+
+    -- Search for horses in Baseplates.CenterBasePlate.Animals.RuntimeEntities.Model_Horse
+    local baseplateHorseWorkspace = workspace:FindFirstChild("Baseplates")
+    if baseplateHorseWorkspace then
+        baseplateHorseWorkspace = baseplateHorseWorkspace:FindFirstChild("Baseplate")
+        if baseplateHorseWorkspace then
+            baseplateHorseWorkspace = baseplateHorseWorkspace:FindFirstChild("CenterBasePlate")
+            if baseplateHorseWorkspace then
+                baseplateHorseWorkspace = baseplateHorseWorkspace:FindFirstChild("Animals")
+                if baseplateHorseWorkspace then
+                    baseplateHorseWorkspace = baseplateHorseWorkspace:FindFirstChild("RuntimeEntities")
+                    if baseplateHorseWorkspace then
+                        baseplateHorseWorkspace = baseplateHorseWorkspace:FindFirstChild("Model_Horse")
+                        if baseplateHorseWorkspace then
+                            for _, vehicleSeat in pairs(baseplateHorseWorkspace:GetChildren()) do
+                                if vehicleSeat:IsA("VehicleSeat") then
+                                    local distance = (humanoidRootPart.Position - vehicleSeat.Position).Magnitude
+                                    if distance < fallbackDistance then
+                                        closestFallback = vehicleSeat
+                                        fallbackDistance = distance
+                                    end
+                                end
+                            end
+                        end
+                    end
                 end
             end
         end
@@ -183,4 +237,3 @@ if not unicornFound then
     else
         warn("No fallback seat or horse found!")
     end
-end
