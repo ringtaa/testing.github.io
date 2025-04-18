@@ -82,7 +82,7 @@ for z = startZ, endZ, stepZ do
         end
     end
 
-    -- Check for Horses in Baseplates.CenterBasePlate.Animals.RuntimeEntities.Model_Horse
+    -- Check for Horses in Workspace Baseplates CenterBasePlate
     local baseplateHorseWorkspace = workspace:FindFirstChild("Baseplates")
     if baseplateHorseWorkspace then
         baseplateHorseWorkspace = baseplateHorseWorkspace:FindFirstChild("Baseplate")
@@ -155,7 +155,7 @@ if not unicornFound then
         end
     end
 
-    -- Search for horses in Baseplates.CenterBasePlate.Animals.RuntimeEntities.Model_Horse
+    -- Search for horses in Workspace Baseplates CenterBasePlate
     local baseplateHorseWorkspace = workspace:FindFirstChild("Baseplates")
     if baseplateHorseWorkspace then
         baseplateHorseWorkspace = baseplateHorseWorkspace:FindFirstChild("Baseplate")
@@ -237,3 +237,4 @@ if not unicornFound then
     else
         warn("No fallback seat or horse found!")
     end
+end
