@@ -8,7 +8,7 @@ local successfullySeated = false
 repeat
     task.wait()
 
-    -- Check if "FinalBasePlate" exists
+    -- Check if "Baseplates" and "FinalBasePlate" exist
     local baseplates = workspace:FindFirstChild("Baseplates")
     if baseplates then
         local finalBasePlate = baseplates:FindFirstChild("FinalBasePlate")
@@ -60,7 +60,7 @@ repeat
     else
         warn("Baseplates not found in Workspace!")
     end
-until tick() - timer > 10 -- Allow the script to run for up to 10 seconds
+until tick() - timer > 15 -- Allow the script to run for up to 15 seconds
 
 if not successfullySeated then
     print("Failed to seat the character within the timeframe.")
