@@ -1,6 +1,5 @@
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local player = Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
@@ -82,52 +81,13 @@ for z = startZ, endZ, stepZ do
         end
     end
 
-    -- Check for Horses in Workspace Baseplates CenterBasePlate
-    local baseplateHorseWorkspace = workspace:FindFirstChild("Baseplates")
-    if baseplateHorseWorkspace then
-        baseplateHorseWorkspace = baseplateHorseWorkspace:FindFirstChild("Baseplate")
-        if baseplateHorseWorkspace then
-            baseplateHorseWorkspace = baseplateHorseWorkspace:FindFirstChild("CenterBasePlate")
-            if baseplateHorseWorkspace then
-                baseplateHorseWorkspace = baseplateHorseWorkspace:FindFirstChild("Animals")
-                if baseplateHorseWorkspace then
-                    baseplateHorseWorkspace = baseplateHorseWorkspace:FindFirstChild("RuntimeEntities")
-                    if baseplateHorseWorkspace then
-                        baseplateHorseWorkspace = baseplateHorseWorkspace:FindFirstChild("Model_Horse")
-                        if baseplateHorseWorkspace then
-                            for _, horse in pairs(baseplateHorseWorkspace:GetChildren()) do
-                                if horse:IsA("VehicleSeat") then
-                                    logEntity("Horse", horse.Position)
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-        end
-    end
-
     -- Check for Horses in ReplicatedStorage.Assets.Entities.Animals.Horse.Animations.Model_Horse
-    local replicatedHorseWorkspace = ReplicatedStorage:FindFirstChild("Assets")
+    local replicatedStorage = game:GetService("ReplicatedStorage")
+    local replicatedHorseWorkspace = replicatedStorage:FindFirstChild("Assets"):FindFirstChild("Entities"):FindFirstChild("Animals"):FindFirstChild("Horse"):FindFirstChild("Animations"):FindFirstChild("Model_Horse")
     if replicatedHorseWorkspace then
-        replicatedHorseWorkspace = replicatedHorseWorkspace:FindFirstChild("Entities")
-        if replicatedHorseWorkspace then
-            replicatedHorseWorkspace = replicatedHorseWorkspace:FindFirstChild("Animals")
-            if replicatedHorseWorkspace then
-                replicatedHorseWorkspace = replicatedHorseWorkspace:FindFirstChild("Horse")
-                if replicatedHorseWorkspace then
-                    replicatedHorseWorkspace = replicatedHorseWorkspace:FindFirstChild("Animations")
-                    if replicatedHorseWorkspace then
-                        replicatedHorseWorkspace = replicatedHorseWorkspace:FindFirstChild("Model_Horse")
-                        if replicatedHorseWorkspace then
-                            for _, horse in pairs(replicatedHorseWorkspace:GetChildren()) do
-                                if horse:IsA("VehicleSeat") then
-                                    logEntity("Horse", horse.Position)
-                                end
-                            end
-                        end
-                    end
-                end
+        for _, horse in pairs(replicatedHorseWorkspace:GetChildren()) do
+            if horse:IsA("VehicleSeat") then
+                logEntity("Horse", horse.Position)
             end
         end
     end
@@ -142,7 +102,7 @@ if not unicornFound then
     local closestFallback = nil
     local fallbackDistance = math.huge
 
-    -- Search for horses with VehicleSeats in RuntimeEntities
+    -- Search for horses with VehicleSeats
     if horseWorkspace then
         for _, vehicleSeat in pairs(horseWorkspace:GetChildren()) do
             if vehicleSeat:IsA("VehicleSeat") then
@@ -155,59 +115,15 @@ if not unicornFound then
         end
     end
 
-    -- Search for horses in Workspace Baseplates CenterBasePlate
-    local baseplateHorseWorkspace = workspace:FindFirstChild("Baseplates")
-    if baseplateHorseWorkspace then
-        baseplateHorseWorkspace = baseplateHorseWorkspace:FindFirstChild("Baseplate")
-        if baseplateHorseWorkspace then
-            baseplateHorseWorkspace = baseplateHorseWorkspace:FindFirstChild("CenterBasePlate")
-            if baseplateHorseWorkspace then
-                baseplateHorseWorkspace = baseplateHorseWorkspace:FindFirstChild("Animals")
-                if baseplateHorseWorkspace then
-                    baseplateHorseWorkspace = baseplateHorseWorkspace:FindFirstChild("RuntimeEntities")
-                    if baseplateHorseWorkspace then
-                        baseplateHorseWorkspace = baseplateHorseWorkspace:FindFirstChild("Model_Horse")
-                        if baseplateHorseWorkspace then
-                            for _, vehicleSeat in pairs(baseplateHorseWorkspace:GetChildren()) do
-                                if vehicleSeat:IsA("VehicleSeat") then
-                                    local distance = (humanoidRootPart.Position - vehicleSeat.Position).Magnitude
-                                    if distance < fallbackDistance then
-                                        closestFallback = vehicleSeat
-                                        fallbackDistance = distance
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-        end
-    end
-
     -- Search for horses in ReplicatedStorage
-    local replicatedHorseWorkspace = ReplicatedStorage:FindFirstChild("Assets")
+    local replicatedHorseWorkspace = game:GetService("ReplicatedStorage"):FindFirstChild("Assets"):FindFirstChild("Entities"):FindFirstChild("Animals"):FindFirstChild("Horse"):FindFirstChild("Animations"):FindFirstChild("Model_Horse")
     if replicatedHorseWorkspace then
-        replicatedHorseWorkspace = replicatedHorseWorkspace:FindFirstChild("Entities")
-        if replicatedHorseWorkspace then
-            replicatedHorseWorkspace = replicatedHorseWorkspace:FindFirstChild("Animals")
-            if replicatedHorseWorkspace then
-                replicatedHorseWorkspace = replicatedHorseWorkspace:FindFirstChild("Horse")
-                if replicatedHorseWorkspace then
-                    replicatedHorseWorkspace = replicatedHorseWorkspace:FindFirstChild("Animations")
-                    if replicatedHorseWorkspace then
-                        replicatedHorseWorkspace = replicatedHorseWorkspace:FindFirstChild("Model_Horse")
-                        if replicatedHorseWorkspace then
-                            for _, vehicleSeat in pairs(replicatedHorseWorkspace:GetChildren()) do
-                                if vehicleSeat:IsA("VehicleSeat") then
-                                    local distance = (humanoidRootPart.Position - vehicleSeat.Position).Magnitude
-                                    if distance < fallbackDistance then
-                                        closestFallback = vehicleSeat
-                                        fallbackDistance = distance
-                                    end
-                                end
-                            end
-                        end
-                    end
+        for _, vehicleSeat in pairs(replicatedHorseWorkspace:GetChildren()) do
+            if vehicleSeat:IsA("VehicleSeat") then
+                local distance = (humanoidRootPart.Position - vehicleSeat.Position).Magnitude
+                if distance < fallbackDistance then
+                    closestFallback = vehicleSeat
+                    fallbackDistance = distance
                 end
             end
         end
