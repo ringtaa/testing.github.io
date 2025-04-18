@@ -1,129 +1,59 @@
-local Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
+local plr = game:GetService("Players").LocalPlayer
+local chr = plr.Character or plr.CharacterAdded:Wait()
+local timer = tick()
 
-local player = Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local humanoid = character:WaitForChild("Humanoid")
-local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+local targetPosition = Vector3.new(-424, 30, -49041) -- Target seat position
 
--- Variables for tweening along Z-coordinate
-local x = 57
-local y = 3
-local startZ = 30000
-local endZ = -49032.99
-local stepZ = -2000
-local duration = 0.5
-local stopTweening = false
-local unicornFound = false
-local loggedEntities = {}
+repeat
+    task.wait()
 
--- Function for tweening
-local function tweenTo(targetPosition, duration)
-    local tweenInfo = TweenInfo.new(duration, Enum.EasingStyle.Linear, Enum.EasingDirection.Out) -- Corrected easing direction
-    local goal = {CFrame = CFrame.new(targetPosition)}
-    local tween = TweenService:Create(humanoidRootPart, tweenInfo, goal)
-    tween:Play()
-    tween.Completed:Wait()
-end
+    -- Check if "FinalBasePlate" exists
+    local baseplates = workspace:FindFirstChild("Baseplates")
+    if baseplates then
+        local finalBasePlate = baseplates:FindFirstChild("FinalBasePlate")
+        if finalBasePlate then
+            local outlawBase = finalBasePlate:FindFirstChild("OutlawBase")
+            if outlawBase then
+                -- Iterate through all descendants of "OutlawBase"
+                for _, v in pairs(outlawBase:GetDescendants()) do
+                    if v:IsA("Seat") or v:IsA("VehicleSeat") then
+                        -- Check if the seat's position matches the target position
+                        if v.Position == targetPosition then
+                            pcall(function()
+                                local timedSeat = tick()
+                                v.Disabled = false -- Enable the seat
+                                local frame = v.CFrame
 
--- Helper function to log unique entities
-local function logEntity(name, position)
-    local roundedX = math.floor(position.X)
-    local roundedY = math.floor(position.Y)
-    local roundedZ = math.floor(position.Z)
-    local key = name .. "_" .. roundedX .. "_" .. roundedY .. "_" .. roundedZ
+                                repeat
+                                    task.wait()
+                                    chr:PivotTo(frame) -- Move character to seat position
+                                    chr.PrimaryPart.CFrame = frame -- Align character's CFrame with the seat
 
-    if not loggedEntities[key] then
-        print(name, "found at coordinates: X =", roundedX, "Y =", roundedY, "Z =", roundedZ)
-        loggedEntities[key] = true
-    end
-end
+                                    if chr.Humanoid.SeatPart == nil then
+                                        v:Sit(chr.Humanoid) -- Attempt to sit
+                                    elseif chr.Humanoid.SeatPart ~= nil then
+                                        -- Simulate jump if already seated
+                                        game:GetService("VirtualInputManager"):SendKeyEvent(true, "Space", false, game)
+                                        task.wait()
+                                        game:GetService("VirtualInputManager"):SendKeyEvent(false, "Space", false, game)
+                                    end
+                                until tick() - timedSeat > 2 -- Stop attempting after 2 seconds
 
--- Step-based tweening to search for Unicorn and fallback options
-for z = startZ, endZ, stepZ do
-    if stopTweening then break end
-
-    -- Tween smoothly to the next position
-    tweenTo(Vector3.new(x, y, z), duration)
-
-    -- Check for Unicorn in Workspace
-    local unicorn = workspace:FindFirstChild("Unicorn")
-    if unicorn and unicorn:IsA("Model") then
-        local unicornSeat = unicorn:FindFirstChild("VehicleSeat")
-        logEntity("Unicorn", unicorn.PrimaryPart.Position)
-
-        if unicornSeat then
-            unicornFound = true
-            stopTweening = true
-
-            -- Sit on the Unicorn's seat immediately
-            tweenTo(unicornSeat.Position, duration)
-            unicornSeat:Sit(humanoid)
-            print("Successfully seated on Unicorn!")
-            break
-        else
-            print("Unicorn does not have a seat. Proceeding to fallback...")
-            unicornFound = true
-            stopTweening = true
-            break
-        end
-    end
-
-    -- Check for Horses in Workspace.Model_Horse
-    local horseWorkspace = workspace:FindFirstChild("Model_Horse")
-    if horseWorkspace then
-        for _, vehicleSeat in pairs(horseWorkspace:GetChildren()) do
-            if vehicleSeat:IsA("VehicleSeat") then
-                logEntity("Horse", vehicleSeat.Position)
-            end
-        end
-    end
-end
-
--- Fallback Logic: Closest Horse or Chair
-if not unicornFound then
-    print("No Unicorn found during tweening. Searching for fallback options...")
-
-    local horseWorkspace = workspace:FindFirstChild("Model_Horse")
-    local chairWorkspace = workspace:FindFirstChild("RuntimeItems")
-    local closestFallback = nil
-    local fallbackDistance = math.huge
-
-    -- Search for horses with VehicleSeats in Workspace.Model_Horse
-    if horseWorkspace then
-        for _, vehicleSeat in pairs(horseWorkspace:GetChildren()) do
-            if vehicleSeat:IsA("VehicleSeat") then
-                local distance = (humanoidRootPart.Position - vehicleSeat.Position).Magnitude
-                if distance < fallbackDistance then
-                    closestFallback = vehicleSeat
-                    fallbackDistance = distance
-                end
-            end
-        end
-    end
-
-    -- Search for chairs in RuntimeItems.Chair.Seat
-    if chairWorkspace then
-        for _, chair in pairs(chairWorkspace:GetChildren()) do
-            if chair.Name == "Chair" then
-                local seat = chair:FindFirstChild("Seat")
-                if seat then
-                    local distance = (humanoidRootPart.Position - seat.Position).Magnitude
-                    if distance < fallbackDistance then
-                        closestFallback = seat
-                        fallbackDistance = distance
+                                chr.Humanoid.Sit = false -- Reset sit state
+                            end)
+                        end
                     end
                 end
+            else
+                warn("OutlawBase not found under FinalBasePlate!")
             end
+        else
+            warn("FinalBasePlate not found under Baseplates!")
         end
+    else
+        warn("Baseplates not found in Workspace!")
     end
 
-    -- Sit on the fallback option
-    if closestFallback then
-        tweenTo(closestFallback.Position, duration)
-        closestFallback:Sit(humanoid)
-        print("Fallback seat selected! Seated on:", closestFallback.Name)
-    else
-        warn("No fallback seat or horse found!")
-    end
-end
+    -- Teleport the character if no valid seat is found
+    chr:PivotTo(CFrame.new(-424, 30, -49041)) -- Ensure fallback teleport to target position
+until tick() - timer > 2.7 -- Stop script execution after 2.7 seconds
