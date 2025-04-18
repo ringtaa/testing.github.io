@@ -62,4 +62,4 @@ repeat
     else
         warn("Baseplates not found in Workspace!")
     end
-until tick() - timer > 15 -- Stop script execution after 15 seconds
+until tick() - timer > 15 -- Allow sufficient time for sitting attempts
